@@ -1,0 +1,24 @@
+{% extends "adminpanel/base.html" %}{% block title %}Admins{% endblock %}
+{% block content %}
+<div class="head"><div><h1>Admins</h1><p class="muted">People who can manage MindSpace accounts.</p></div></div>
+<div class="card" style="margin-bottom:16px">
+  <h3 style="margin-bottom:10px">Add an admin</h3>
+  <form class="inline" method="post">{% csrf_token %}
+    <input type="email" name="email" placeholder="Their MindSpace account email" required style="min-width:300px" />
+    <button class="btn">Make admin</button>
+  </form>
+  <p class="small muted" style="margin-top:10px">They need a MindSpace account first. Admins can suspend and delete users, so only add people you trust.</p>
+</div>
+<div class="card" style="padding:6px 10px">
+<table>
+  <tr><th>Name</th><th>Email</th><th>Role</th><th>Admin since joining</th><th></th></tr>
+  {% for u in rows %}
+  <tr><td>{{ u.name|default:"–" }}</td><td>{{ u.email }}</td>
+    <td>{% if u.is_owner %}<span class="pill admin">Owner</span>{% else %}<span class="pill">Admin</span>{% endif %}</td>
+    <td class="muted">{{ u.date_joined|date:"j M Y" }}</td>
+    <td style="text-align:right">{% if not u.is_owner and u.id != request.user.id %}
+      <form method="post" action="{% url 'adminpanel:user_action' u.id 'remove-admin' %}" onsubmit="return confirm('Remove admin rights from {{ u.email }}?')">{% csrf_token %}<button class="btn outline">Remove</button></form>{% endif %}</td></tr>
+  {% endfor %}
+</table>
+</div>
+{% endblock %}

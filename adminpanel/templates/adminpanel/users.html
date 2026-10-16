@@ -1,0 +1,32 @@
+{% extends "adminpanel/base.html" %}{% block title %}Users{% endblock %}
+{% block content %}
+<div class="head"><div><h1>Users</h1><p class="muted">{{ page.paginator.count }} account{{ page.paginator.count|pluralize }}</p></div>
+  <form class="inline" method="get">
+    <input name="q" value="{{ q }}" placeholder="Search name or email" />
+    <select name="status">
+      <option value="all" {% if status == 'all' %}selected{% endif %}>All</option>
+      <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+      <option value="suspended" {% if status == 'suspended' %}selected{% endif %}>Suspended</option>
+      <option value="admins" {% if status == 'admins' %}selected{% endif %}>Admins</option>
+    </select>
+    <button class="btn">Search</button>
+  </form>
+</div>
+<div class="card" style="padding:6px 10px">
+<table>
+  <tr><th>Name</th><th>Email</th><th>Status</th><th>Joined</th><th>Last login</th></tr>
+  {% for u in rows %}
+  <tr class="link" onclick="location.href='{% url 'adminpanel:user_detail' u.id %}'">
+    <td>{{ u.name|default:"–" }}</td><td>{{ u.email }}</td>
+    <td>{% if not u.is_active %}<span class="pill warn">Suspended</span>{% elif u.is_owner %}<span class="pill admin">Owner</span>{% elif u.is_admin %}<span class="pill admin">Admin</span>{% else %}<span class="pill ok">Active</span>{% endif %}</td>
+    <td class="muted">{{ u.date_joined|date:"j M Y" }}</td><td class="muted">{{ u.last_login|date:"j M Y"|default:"never" }}</td>
+  </tr>
+  {% empty %}<tr><td colspan="5" class="muted">No users match.</td></tr>{% endfor %}
+</table>
+</div>
+{% if page.has_other_pages %}<div class="pager">
+  {% if page.has_previous %}<a class="btn outline" href="?q={{ q|urlencode }}&status={{ status }}&page={{ page.previous_page_number }}">Previous</a>{% endif %}
+  <span class="small muted" style="align-self:center">Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+  {% if page.has_next %}<a class="btn outline" href="?q={{ q|urlencode }}&status={{ status }}&page={{ page.next_page_number }}">Next</a>{% endif %}
+</div>{% endif %}
+{% endblock %}

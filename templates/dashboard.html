@@ -1,0 +1,284 @@
+{% load static %}
+{% load wellness_extras %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — MindSpace</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  <style>
+    body { background: var(--cream); }
+    .dash-wrap { max-width: 1100px; margin: 0 auto; padding: 110px 24px 60px; }
+
+    .dash-top {
+      display: flex; align-items: flex-end; justify-content: space-between;
+      flex-wrap: wrap; gap: 20px; margin-bottom: 32px;
+    }
+    .dash-top h1 { font-size: 30px; margin-bottom: 4px; }
+    .dash-top p { font-size: 14px; color: var(--mid-gray); }
+
+    .stat-row { display: flex; gap: 14px; flex-wrap: wrap; }
+    .stat-pill {
+      background: white; border-radius: var(--radius-sm);
+      padding: 12px 18px; box-shadow: var(--shadow-soft);
+      text-align: center; min-width: 100px;
+    }
+    .stat-pill strong {
+      display: block; font-family: 'DM Serif Display', serif;
+      font-size: 22px; color: var(--sage-dark);
+    }
+    .stat-pill span { font-size: 11px; color: var(--mid-gray); text-transform: uppercase; letter-spacing: 0.04em; }
+
+    .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+    @media (max-width: 860px) { .dash-grid { grid-template-columns: 1fr; } }
+
+    .dash-card {
+      background: white; border-radius: var(--radius);
+      padding: 32px; box-shadow: var(--shadow-soft);
+    }
+    .dash-card h2 { font-size: 20px; margin-bottom: 6px; }
+    .dash-card .card-sub { font-size: 13px; color: var(--mid-gray); margin-bottom: 20px; }
+
+    .checked-in-badge {
+      background: var(--success-bg); color: var(--success);
+      border-radius: var(--radius-sm); padding: 10px 14px;
+      font-size: 13px; margin-bottom: 12px;
+    }
+    .today-log { display: flex; flex-direction: column; gap: 6px; margin-bottom: 20px; }
+    .today-log-row {
+      display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--mid-gray);
+      background: var(--cream); border-radius: var(--radius-sm); padding: 6px 10px;
+    }
+    .today-log-row .em { font-size: 15px; }
+    .today-log-row .tlbl { font-weight: 500; color: var(--charcoal); }
+    .today-log-row .tltime { color: var(--mid-gray); }
+    .today-log-row .tlnote { color: var(--mid-gray); font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* ── Mood picker ─────────────────────────────────────── */
+    .mood-picker { display: flex; gap: 8px; margin-bottom: 22px; }
+    .mood-opt { flex: 1; position: relative; }
+    .mood-opt input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; cursor: pointer; margin: 0; }
+    .mood-opt .mood-box {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      padding: 14px 4px; border-radius: var(--radius-sm);
+      border: 1.5px solid var(--light-gray); background: var(--cream);
+      transition: var(--transition);
+    }
+    .mood-opt .mood-box .em { font-size: 24px; }
+    .mood-opt .mood-box .lbl { font-size: 11px; color: var(--mid-gray); text-align: center; }
+    .mood-opt input:checked + .mood-box {
+      border-color: var(--sage); background: var(--sage-light);
+    }
+    .mood-opt input:focus-visible + .mood-box { outline: 2px solid var(--sage); }
+
+    /* ── Emotion tags ────────────────────────────────────── */
+    .tag-field-label { font-size: 13px; font-weight: 500; margin-bottom: 10px; display: block; }
+    .emotion-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+    .tag-opt { position: relative; }
+    .tag-opt input { position: absolute; opacity: 0; inset: 0; width: 100%; height: 100%; cursor: pointer; margin: 0; }
+    .tag-opt .tag-chip {
+      display: inline-block; padding: 7px 14px; border-radius: 50px;
+      border: 1.5px solid var(--light-gray); background: white;
+      font-size: 13px; color: var(--charcoal); transition: var(--transition);
+    }
+    .tag-opt input:checked + .tag-chip {
+      background: var(--sage); color: white; border-color: var(--sage);
+    }
+
+    .note-field textarea {
+      width: 100%; padding: 12px 14px; border: 1.5px solid var(--light-gray);
+      border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif;
+      font-size: 14px; resize: vertical; min-height: 70px;
+    }
+    .note-field { margin-bottom: 20px; }
+
+    .checkin-submit {
+      width: 100%; padding: 13px; background: var(--sage); color: white;
+      border: none; border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif;
+      font-size: 15px; font-weight: 500; cursor: pointer; transition: var(--transition);
+    }
+    .checkin-submit:hover { background: var(--sage-dark); transform: translateY(-1px); }
+
+    .form-errors { background: var(--error-bg); color: var(--error); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 13px; margin-bottom: 16px; }
+
+    /* ── 7-day chart ─────────────────────────────────────── */
+    .chart-bars { display: flex; align-items: flex-end; gap: 10px; height: 140px; margin-bottom: 8px; }
+    .chart-bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; gap: 6px; }
+    .chart-bar {
+      width: 100%; max-width: 34px; border-radius: 6px 6px 3px 3px;
+      background: var(--sage); transition: var(--transition);
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+    }
+    .chart-bar.empty { background: var(--cream-dark); }
+    .chart-bar.today { box-shadow: 0 0 0 2px var(--sage-dark); }
+    .chart-bar .em { font-size: 13px; margin-top: 4px; }
+    .chart-bar .count-badge { font-size: 9px; color: white; opacity: 0.85; }
+    .chart-day-label { font-size: 11px; color: var(--mid-gray); }
+
+    .breakdown-list { display: flex; flex-direction: column; gap: 8px; margin-top: 24px; }
+    .breakdown-row { display: flex; align-items: center; gap: 10px; }
+    .breakdown-row .em { font-size: 16px; width: 22px; }
+    .breakdown-row .lbl { font-size: 12px; color: var(--mid-gray); width: 70px; flex-shrink: 0; }
+    .breakdown-track { flex: 1; height: 8px; background: var(--cream-dark); border-radius: 4px; overflow: hidden; }
+    .breakdown-fill { height: 100%; background: var(--sage); border-radius: 4px; }
+    .breakdown-count { font-size: 12px; color: var(--mid-gray); width: 20px; text-align: right; }
+
+    .coming-soon-card {
+      grid-column: 1 / -1;
+      background: var(--cream); border: 1px dashed var(--light-gray);
+      border-radius: var(--radius); padding: 24px 28px; margin-top: 8px;
+      font-size: 13px; color: var(--mid-gray);
+    }
+    .coming-soon-card strong { color: var(--charcoal); }
+  </style>
+</head>
+<body>
+  <nav class="navbar" style="position:fixed">
+    <a href="{% url 'index' %}" class="nav-logo">
+      <div class="nav-logo-dot">&#9825;</div>
+      MindSpace
+    </a>
+    <div style="display:flex;gap:12px;">
+      <a href="{% url 'get_help' %}" class="btn btn-terra">Get help now</a>
+      <a href="{% url 'mood_insights' %}" class="btn btn-outline">&#128202; Insights</a>
+      <a href="{% url 'chat' %}" class="btn btn-primary">&#128172; AI Chat</a>
+      <a href="{% url 'account_settings' %}" class="btn btn-outline">&#9881;</a>
+      <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline">Log out</button>
+      </form>
+    </div>
+  </nav>
+
+  <div class="dash-wrap">
+
+    {% if not user.email_verified %}
+      <div style="background:var(--error-bg);color:var(--error);border-radius:var(--radius-sm);padding:12px 18px;font-size:13px;margin-bottom:20px;">
+        &#9888; Please verify your email address.
+        <a href="{% url 'account_settings' %}" style="color:var(--error);text-decoration:underline;font-weight:600;">Resend verification email</a>
+      </div>
+    {% endif %}
+
+    <div class="dash-top">
+      <div>
+        <h1>{{ greeting }}, {{ user.first_name|default:user.email }} &#128075;</h1>
+        <p>Here's how the last week has been going.</p>
+      </div>
+      <div class="stat-row">
+        <div class="stat-pill">
+          <strong>{{ streak }}</strong>
+          <span>Day streak</span>
+        </div>
+        <div class="stat-pill">
+          <strong>{% if avg_mood %}{{ avg_mood }}{% else %}&mdash;{% endif %}</strong>
+          <span>Avg mood (7d)</span>
+        </div>
+        <div class="stat-pill">
+          <strong>{{ journal_count }}</strong>
+          <span>Journal entries</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-grid">
+
+      <!-- MOOD CHECK-IN -->
+      <div class="dash-card">
+        <h2>How are you feeling today?</h2>
+        <p class="card-sub">Log your mood once a day — it only takes a few seconds.</p>
+
+        {% if today_entries %}
+          <div class="checked-in-badge">
+            &#10003; You've logged {{ today_entries|length }} check-in{{ today_entries|length|pluralize }} today.
+          </div>
+          <div class="today-log">
+            {% for e in today_entries %}
+              <div class="today-log-row">
+                <span class="em">{{ e.emoji }}</span>
+                <span class="tlbl">{{ e.get_mood_display }}</span>
+                <span class="tltime">{{ e.created_at|time:"H:i" }}</span>
+                {% if e.note %}<span class="tlnote">&mdash; {{ e.note }}</span>{% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        {% if form.non_field_errors or form.mood.errors %}
+          <div class="form-errors">
+            {% for e in form.non_field_errors %}{{ e }} {% endfor %}
+            {% for e in form.mood.errors %}{{ e }} {% endfor %}
+          </div>
+        {% endif %}
+
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="mood-picker">
+            {% for value, label in mood_choices %}
+              <label class="mood-opt">
+                <input type="radio" name="mood" value="{{ value }}" required>
+                <span class="mood-box">
+                  <span class="em">{{ mood_emoji|dictitem:value }}</span>
+                  <span class="lbl">{{ label }}</span>
+                </span>
+              </label>
+            {% endfor %}
+          </div>
+
+          <span class="tag-field-label">What's contributing to that? (optional, pick any)</span>
+          <div class="emotion-tags">
+            {% for value, label in emotion_choices %}
+              <label class="tag-opt">
+                <input type="checkbox" name="emotions" value="{{ value }}">
+                <span class="tag-chip">{{ label }}</span>
+              </label>
+            {% endfor %}
+          </div>
+
+          <div class="note-field">
+            <textarea name="note" placeholder="Anything you want to note about this moment? (optional)"></textarea>
+          </div>
+
+          <button type="submit" class="checkin-submit">Save check-in</button>
+        </form>
+      </div>
+
+      <!-- 7-DAY CHART -->
+      <div class="dash-card">
+        <h2>Last 7 days</h2>
+        <p class="card-sub">Each bar is a day you checked in.</p>
+
+        <div class="chart-bars">
+          {% for d in chart_data %}
+            <div class="chart-bar-col">
+              <div class="chart-bar {% if not d.has_entry %}empty{% endif %} {% if d.is_today %}today{% endif %}" style="height: {{ d.height_pct }}%;" title="{% if d.has_entry %}{{ d.count }} check-in{{ d.count|pluralize }}{% endif %}">
+                {% if d.has_entry %}<span class="em">{{ d.emoji }}</span>{% if d.count > 1 %}<span class="count-badge">×{{ d.count }}</span>{% endif %}{% endif %}
+              </div>
+              <span class="chart-day-label">{{ d.label }}</span>
+            </div>
+          {% endfor %}
+        </div>
+
+        <div class="breakdown-list">
+          {% for b in breakdown %}
+            <div class="breakdown-row">
+              <span class="em">{{ b.emoji }}</span>
+              <span class="lbl">{{ b.label }}</span>
+              <div class="breakdown-track">
+                <div class="breakdown-fill" style="width: {% if max_breakdown_count %}{% widthratio b.count max_breakdown_count 100 %}{% else %}0{% endif %}%;"></div>
+              </div>
+              <span class="breakdown-count">{{ b.count }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="coming-soon-card">
+        <strong>Coming next:</strong> guided journaling with AI analysis, and breathing exercises will live here. AI chat and mood insights are live — try them from the buttons up top.
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

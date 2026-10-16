@@ -1,0 +1,47 @@
+{% extends "adminpanel/base.html" %}{% block title %}{{ u.email }}{% endblock %}
+{% block content %}
+<p class="small" style="margin-bottom:10px"><a href="{% url 'adminpanel:users' %}" style="color:var(--sage-dark)">← All users</a></p>
+<div class="head"><div><h1>{{ u.name|default:u.email }}</h1><p class="muted">{{ u.email }} ·
+  {% if not u.is_active %}<span class="pill warn">Suspended</span>{% elif u.is_owner %}<span class="pill admin">Owner</span>{% elif u.is_admin %}<span class="pill admin">Admin</span>{% else %}<span class="pill ok">Active</span>{% endif %}
+  {% if u.email_verified %}<span class="pill ok">Email verified</span>{% else %}<span class="pill">Email not verified</span>{% endif %}</p></div></div>
+
+<div class="grid g4">
+  <div class="card stat"><b>{{ u.mood_entries }}</b><span>Check-ins ({{ u.mood_entries_7d }} this week)</span></div>
+  <div class="card stat"><b>{{ u.conversations }}</b><span>Conversations</span></div>
+  <div class="card stat"><b>{{ u.messages }}</b><span>Messages sent</span></div>
+  <div class="card stat"><b>{% if u.rating %}{{ u.rating.stars }}★{% else %}–{% endif %}</b><span>Their app rating</span></div>
+</div>
+<div class="note" style="margin-top:14px">For privacy, admins see activity counts only. Mood notes and chat messages are never shown here.</div>
+
+<div class="grid g2" style="margin-top:16px">
+  <div class="card">
+    <h3 style="margin-bottom:6px">Account</h3>
+    <p class="small muted">Joined {{ u.date_joined|date:"j M Y" }} · Last login {{ u.last_login|date:"j M Y, H:i"|default:"never" }} · Country {{ u.country|default:"–" }}</p>
+    {% if u.rating and u.rating.comment %}<p style="margin-top:12px"><span class="stars">{{ "★★★★★"|slice:u.rating.stars }}</span> “{{ u.rating.comment }}”</p>{% endif %}
+    <div class="inline" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px">
+      {% if u.id != request.user.id %}
+        {% if u.is_active %}
+          <form method="post" action="{% url 'adminpanel:user_action' u.id 'suspend' %}" onsubmit="return confirm('Suspend {{ u.email }}? They will be signed out and unable to log in.')">{% csrf_token %}<button class="btn warn">Suspend</button></form>
+        {% else %}
+          <form method="post" action="{% url 'adminpanel:user_action' u.id 'reactivate' %}">{% csrf_token %}<button class="btn">Reactivate</button></form>
+        {% endif %}
+        {% if u.is_admin and not u.is_owner %}
+          <form method="post" action="{% url 'adminpanel:user_action' u.id 'remove-admin' %}" onsubmit="return confirm('Remove admin rights from {{ u.email }}?')">{% csrf_token %}<button class="btn outline">Remove admin</button></form>
+        {% elif not u.is_admin and u.is_active %}
+          <form method="post" action="{% url 'adminpanel:user_action' u.id 'make-admin' %}" onsubmit="return confirm('Make {{ u.email }} an admin? They will be able to manage all accounts.')">{% csrf_token %}<button class="btn outline">Make admin</button></form>
+        {% endif %}
+      {% else %}<p class="small muted">This is your own account.</p>{% endif %}
+    </div>
+  </div>
+  {% if u.id != request.user.id and not u.is_owner %}
+  <div class="card" style="border-color:#f0c9c4">
+    <h3 style="margin-bottom:6px;color:var(--err)">Delete account</h3>
+    <p class="small muted">Permanently deletes this account and all its moods, chats and insights. This can't be undone.</p>
+    <form method="post" action="{% url 'adminpanel:user_action' u.id 'delete' %}" style="margin-top:14px;display:flex;flex-direction:column;gap:10px">{% csrf_token %}
+      <input name="confirm_email" placeholder="Type {{ u.email }} to confirm" autocomplete="off" />
+      <button class="btn danger" style="align-self:flex-start">Delete permanently</button>
+    </form>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

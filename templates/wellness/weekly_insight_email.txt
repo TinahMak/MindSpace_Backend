@@ -1,0 +1,15 @@
+Hi{% if user.first_name %} {{ user.first_name }}{% endif %},
+
+Here's your weekly mood snapshot from MindSpace:
+
+- Check-ins this week: {{ stats.total_entries }}
+- Average mood: {{ stats.avg_mood|default:"n/a" }} (1=very low, 5=great)
+- Trend: {{ stats.trend }}
+
+{{ stats.reflection }}
+
+See the full picture, including your 7-day chart, at your MindSpace insights page.
+
+To stop receiving these emails, turn off "Email me a weekly mood insight summary" in your Account Settings.
+
+— The MindSpace team

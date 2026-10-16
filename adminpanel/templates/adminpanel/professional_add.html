@@ -1,0 +1,41 @@
+{% extends "adminpanel/base.html" %}{% block title %}Add professional{% endblock %}
+{% block content %}
+<p class="small" style="margin-bottom:10px"><a href="{% url 'adminpanel:professionals' %}" style="color:var(--sage-dark)">← All professionals</a></p>
+<div class="head"><div><h1>Add a professional</h1><p class="muted">For professionals you have already verified. They're approved straight away and get an email to set their own password.</p></div></div>
+<form method="post" class="card" style="display:flex;flex-direction:column;gap:18px">{% csrf_token %}
+  <div class="grid" style="grid-template-columns:110px 1fr 1fr;gap:12px">
+    <label class="field">Title<select name="title"><option value="">–</option>{% for t in m.titles %}<option {% if f.title == t %}selected{% endif %}>{{ t }}</option>{% endfor %}</select></label>
+    <label class="field">First name<input name="first_name" value="{{ f.first_name }}" required placeholder="John"></label>
+    <label class="field">Last name<input name="last_name" value="{{ f.last_name }}" required placeholder="Doe"></label>
+  </div>
+  <div class="grid g2">
+    <label class="field">Email<input type="email" name="email" value="{{ f.email }}" required></label>
+    <label class="field">Phone (optional)<input name="contact_phone" value="{{ f.contact_phone }}"></label>
+  </div>
+  <div class="grid" style="grid-template-columns:1fr 1fr 1fr;gap:12px">
+    <label class="field">Profession<select name="profession" required>{% for p in m.professions %}<option value="{{ p.value }}" {% if f.profession == p.value %}selected{% endif %}>{{ p.label }}</option>{% endfor %}</select></label>
+    <label class="field">Registered with<select name="regulator">{% for r in m.regulators %}<option value="{{ r.value }}" {% if f.regulator == r.value %}selected{% endif %}>{{ r.value }}</option>{% endfor %}</select></label>
+    <label class="field">Registration number<input name="registration_number" value="{{ f.registration_number }}" required></label>
+  </div>
+  <label class="field">If "Other", name of the body<input name="regulator_other" value="{{ f.regulator_other }}"></label>
+  <div class="grid" style="grid-template-columns:3fr 1fr;gap:12px">
+    <label class="field">Qualifications<input name="qualifications" value="{{ f.qualifications }}" required placeholder="e.g. MA Clinical Psychology (UJ)"></label>
+    <label class="field">Years of experience<input type="number" min="0" max="70" name="years_experience" value="{{ f.years_experience|default:0 }}"></label>
+  </div>
+  <div class="grid" style="grid-template-columns:2fr 2fr 1fr 1fr;gap:12px">
+    <label class="field">Practice name<input name="practice_name" value="{{ f.practice_name }}"></label>
+    <label class="field">Street address<input name="address" value="{{ f.address }}"></label>
+    <label class="field">City or town<input name="city" value="{{ f.city }}" required></label>
+    <label class="field">Province<select name="province" required><option value="">–</option>{% for p in m.provinces %}<option {% if f.province == p %}selected{% endif %}>{{ p }}</option>{% endfor %}</select></label>
+  </div>
+  <div class="grid" style="grid-template-columns:1fr 1fr 2fr;gap:12px;align-items:end">
+    <label class="field">Fee from (R)<input type="number" min="0" name="fee_min" value="{{ f.fee_min }}"></label>
+    <label class="field">Fee up to (R)<input type="number" min="0" name="fee_max" value="{{ f.fee_max }}"></label>
+    <div class="checks"><label><input type="checkbox" name="offers_in_person" {% if not f or f.offers_in_person %}checked{% endif %}> In person</label><label><input type="checkbox" name="offers_online" {% if f.offers_online %}checked{% endif %}> Online</label><label><input type="checkbox" name="accepts_medical_aid" {% if f.accepts_medical_aid %}checked{% endif %}> Medical aid</label></div>
+  </div>
+  <div class="field">Focus areas<div class="checks">{% for s in m.specialties %}<label><input type="checkbox" name="specialties" value="{{ s.value }}" {% if s.value in f.specialties %}checked{% endif %}> {{ s.label }}</label>{% endfor %}</div></div>
+  <div class="field">Languages<div class="checks">{% for l in m.languages %}<label><input type="checkbox" name="languages" value="{{ l }}" {% if l in f.languages %}checked{% endif %}> {{ l }}</label>{% endfor %}</div></div>
+  <label class="field">Short bio (optional)<textarea name="bio">{{ f.bio }}</textarea></label>
+  <button class="btn" style="align-self:flex-start">Add and approve</button>
+</form>
+{% endblock %}

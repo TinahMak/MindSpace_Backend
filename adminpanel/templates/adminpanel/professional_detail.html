@@ -1,0 +1,66 @@
+{% extends "adminpanel/base.html" %}{% block title %}{{ p.display_name }}{% endblock %}
+{% block content %}
+<p class="small" style="margin-bottom:10px"><a href="{% url 'adminpanel:professionals' %}" style="color:var(--sage-dark)">← All professionals</a></p>
+<div class="head"><div><h1>{{ p.display_name }}</h1><p class="muted">{{ p.profession_label }} · {{ p.email }} ·
+  {% if p.status == 'approved' %}<span class="pill ok">Approved</span>{% elif p.status == 'pending' %}<span class="pill warn">Pending review</span>{% elif p.status == 'rejected' %}<span class="pill">Rejected</span>{% else %}<span class="pill admin">Suspended</span>{% endif %}
+  {% if p.created_by_admin %}<span class="pill">Added by an admin</span>{% endif %}</p></div></div>
+{% if p.status_reason %}<div class="note" style="margin-bottom:16px"><b>Reason on file:</b> {{ p.status_reason }}</div>{% endif %}
+
+<div class="grid g2">
+  <div class="card">
+    <h3 style="margin-bottom:12px">Registration</h3>
+    <dl class="kv">
+      <dt>Registered with</dt><dd>{{ p.regulator_label }}</dd>
+      <dt>Registration number</dt><dd><b>{{ p.registration_number }}</b></dd>
+      <dt>Qualifications</dt><dd>{{ p.qualifications|linebreaksbr }}</dd>
+      <dt>Experience</dt><dd>{{ p.years_experience }} year{{ p.years_experience|pluralize }}</dd>
+    </dl>
+    <div class="note" style="margin-top:14px">Before approving, look up the registration number on the {{ p.regulator }} public register and check the name and profession match these documents.</div>
+  </div>
+  <div class="card">
+    <h3 style="margin-bottom:12px">Documents ({{ p.documents|length }})</h3>
+    {% for d in p.documents %}<p style="padding:8px 0;border-bottom:1px solid var(--cream-dark)"><a href="{% url 'adminpanel:professional_document' d.id %}" target="_blank" style="color:var(--sage-dark);font-weight:500">{{ d.name }}</a><span class="small muted"> · {{ d.kind_label }} · {{ d.size|filesizeformat }}</span></p>
+    {% empty %}<p class="muted small">No documents uploaded yet.{% if not p.created_by_admin %} They can't be approved until they upload one.{% endif %}</p>{% endfor %}
+  </div>
+  <div class="card">
+    <h3 style="margin-bottom:12px">Practice</h3>
+    <dl class="kv">
+      <dt>Practice</dt><dd>{{ p.practice_name|default:"–" }}</dd>
+      <dt>Address</dt><dd>{{ p.address|default:"–" }}<br>{{ p.city }}, {{ p.province }}</dd>
+      <dt>Sessions</dt><dd>{% if p.offers_in_person %}In person{% endif %}{% if p.offers_in_person and p.offers_online %} and {% endif %}{% if p.offers_online %}online{% endif %}</dd>
+      <dt>Fees per session</dt><dd>{% if p.fee_min or p.fee_max %}R{{ p.fee_min|default:"?" }} to R{{ p.fee_max|default:"?" }}{% else %}Not given{% endif %}{% if p.accepts_medical_aid %} · accepts medical aid{% endif %}</dd>
+      <dt>Phone</dt><dd>{{ p.contact_phone|default:"–" }}</dd>
+    </dl>
+  </div>
+  <div class="card">
+    <h3 style="margin-bottom:12px">About</h3>
+    <dl class="kv">
+      <dt>Focus areas</dt><dd>{{ p.specialty_labels|join:", " }}</dd>
+      <dt>Languages</dt><dd>{{ p.languages|join:", " }}</dd>
+      <dt>Bio</dt><dd>{{ p.bio|default:"–"|linebreaksbr }}</dd>
+    </dl>
+  </div>
+</div>
+
+<div class="card" style="margin-top:16px">
+  <h3 style="margin-bottom:12px">Decision</h3>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start">
+    {% if p.status == 'pending' or p.status == 'rejected' %}
+      <form method="post" action="{% url 'adminpanel:professional_action' p.id 'approve' %}" onsubmit="return confirm('Approve {{ p.display_name }}? Only do this after checking the register.')">{% csrf_token %}<button class="btn">Approve</button></form>
+    {% endif %}
+    {% if p.status == 'suspended' %}
+      <form method="post" action="{% url 'adminpanel:professional_action' p.id 'reinstate' %}">{% csrf_token %}<button class="btn">Reinstate</button></form>
+    {% endif %}
+    {% if p.status == 'pending' %}
+      <form method="post" action="{% url 'adminpanel:professional_action' p.id 'reject' %}" style="flex:1;min-width:280px;display:flex;flex-direction:column;gap:8px">{% csrf_token %}
+        <textarea name="reason" placeholder="Reason for rejecting (they will see this), e.g. registration number not found on the HPCSA register" required></textarea>
+        <button class="btn outline" style="align-self:flex-start">Reject with reason</button></form>
+    {% endif %}
+    {% if p.status == 'approved' %}
+      <form method="post" action="{% url 'adminpanel:professional_action' p.id 'suspend' %}" style="flex:1;min-width:280px;display:flex;flex-direction:column;gap:8px">{% csrf_token %}
+        <textarea name="reason" placeholder="Reason for suspending" required></textarea>
+        <button class="btn warn" style="align-self:flex-start">Suspend</button></form>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

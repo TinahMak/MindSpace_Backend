@@ -1,0 +1,43 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Email Verification — MindSpace</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  <style>
+    body { background: var(--cream); }
+    .login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 100px 24px 40px; }
+    .login-card { background: white; border-radius: var(--radius); padding: 48px; width: 100%; max-width: 420px; box-shadow: var(--shadow-med); text-align: center; }
+    .success-icon { width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+    .success-icon.ok { background: var(--success-bg); }
+    .success-icon.fail { background: var(--error-bg); }
+    .login-card h1 { font-size: 24px; margin-bottom: 10px; }
+    .login-card p { font-size: 14px; color: var(--mid-gray); line-height: 1.7; margin-bottom: 24px; }
+  </style>
+</head>
+<body>
+  <nav class="navbar" style="position:fixed">
+    <a href="{% url 'index' %}" class="nav-logo">
+      <div class="nav-logo-dot">&#9825;</div>
+      MindSpace
+    </a>
+  </nav>
+  <div class="login-wrap">
+    <div class="login-card fade-up">
+      {% if valid %}
+        <div class="success-icon ok">&#10003;</div>
+        <h1>Email verified</h1>
+        <p>Thanks — your email address is confirmed.</p>
+        <a href="{% url 'dashboard' %}" class="btn btn-primary btn-large">Go to dashboard</a>
+      {% else %}
+        <div class="success-icon fail">&#9888;</div>
+        <h1>Link expired or invalid</h1>
+        <p>This verification link isn't valid anymore. You can request a new one from your account settings.</p>
+        <a href="{% url 'login' %}" class="btn btn-primary btn-large">Log in</a>
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>

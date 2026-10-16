@@ -1,0 +1,9 @@
+Hi{% if user.first_name %} {{ user.first_name }}{% endif %},
+
+Welcome to MindSpace! Please confirm your email address by clicking the link below:
+
+{{ verify_url }}
+
+If you didn't create a MindSpace account, you can safely ignore this email.
+
+— The MindSpace team

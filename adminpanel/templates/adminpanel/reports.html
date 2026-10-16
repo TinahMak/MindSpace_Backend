@@ -1,0 +1,42 @@
+{% extends "adminpanel/base.html" %}{% block title %}Reports{% endblock %}
+{% block content %}
+<div class="head"><div><h1>Reports</h1><p class="muted">Print-ready PDFs with charts, or CSV for Excel.</p></div></div>
+
+<form method="get" class="card" style="display:flex;flex-direction:column;gap:16px">
+  <div class="tabs" style="margin:0">
+    {% for k, label in kinds %}<a href="?kind={{ k }}&preset={{ preset }}&start={{ start }}&end={{ end }}" class="{% if kind == k %}on{% endif %}">{{ label }}</a>{% endfor %}
+  </div>
+  <input type="hidden" name="kind" value="{{ kind }}">
+  <div class="inline" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
+    <label class="field">Period
+      <select name="preset" onchange="document.getElementById('custom').style.display=this.value==='custom'?'flex':'none'">
+        <option value="7" {% if preset == '7' %}selected{% endif %}>Last 7 days</option>
+        <option value="30" {% if preset == '30' %}selected{% endif %}>Last 30 days</option>
+        <option value="90" {% if preset == '90' %}selected{% endif %}>Last 90 days</option>
+        <option value="month" {% if preset == 'month' %}selected{% endif %}>This month</option>
+        <option value="last_month" {% if preset == 'last_month' %}selected{% endif %}>Last month</option>
+        <option value="custom" {% if preset == 'custom' %}selected{% endif %}>Custom dates</option>
+      </select>
+    </label>
+    <div id="custom" style="display:{% if preset == 'custom' %}flex{% else %}none{% endif %};gap:12px">
+      <label class="field">From<input type="date" name="start" value="{{ start }}"></label>
+      <label class="field">To<input type="date" name="end" value="{{ end }}"></label>
+    </div>
+    <button class="btn outline">Update</button>
+  </div>
+</form>
+
+{% if error %}<div class="msg error" style="margin-top:16px">{{ error }}</div>{% else %}
+<div class="card" style="margin-top:16px">
+  <p class="muted small" style="margin-bottom:12px">{{ s|date:"j F Y" }} to {{ e|date:"j F Y" }}</p>
+  <div class="grid g4">{% for k, v in kpis %}<div class="stat"><b>{{ v }}</b><span>{{ k }}</span></div>{% endfor %}</div>
+  <p class="small muted" style="margin-top:12px">{{ rows }} row{{ rows|pluralize }} in the detailed table.</p>
+  <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap">
+    <a class="btn" target="_blank" href="{% url 'adminpanel:report_file' kind 'pdf' %}?{{ query }}">Open PDF to print</a>
+    <a class="btn outline" href="{% url 'adminpanel:report_file' kind 'pdf' %}?{{ query }}&download=1">Download PDF</a>
+    <a class="btn outline" href="{% url 'adminpanel:report_file' kind 'csv' %}?{{ query }}">Download CSV</a>
+  </div>
+</div>
+<div class="note" style="margin-top:14px">Reports contain personal information. Each one you generate is recorded in the audit log. The Consultations report never includes topics, messages or mood details.</div>
+{% endif %}
+{% endblock %}

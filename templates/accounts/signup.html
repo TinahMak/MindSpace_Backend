@@ -1,0 +1,618 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign Up — MindSpace</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  <style>
+    body { background: var(--cream); }
+
+    .signup-layout {
+      min-height: 100vh;
+      display: grid; grid-template-columns: 1fr 1fr;
+    }
+
+    /* Left panel */
+    .signup-left {
+      background: var(--charcoal);
+      display: flex; flex-direction: column;
+      justify-content: space-between;
+      padding: 60px;
+      position: relative; overflow: hidden;
+    }
+    .signup-left-bg {
+      position: absolute; border-radius: 50%;
+      background: var(--sage); opacity: 0.06; pointer-events: none;
+    }
+    .signup-left-bg.b1 { width: 400px; height: 400px; top: -80px; right: -80px; }
+    .signup-left-bg.b2 { width: 250px; height: 250px; bottom: 40px; left: -40px; }
+
+    .signup-left-logo { position: relative; z-index: 1; }
+    .signup-left-logo .nav-logo { color: white; font-size: 24px; }
+
+    .signup-left-content { position: relative; z-index: 1; }
+    .signup-left-content h2 {
+      font-size: 38px; color: white;
+      margin-bottom: 16px; line-height: 1.25;
+    }
+    .signup-left-content h2 em { font-style: italic; color: var(--sage-light); }
+    .signup-left-content p { font-size: 15px; color: rgba(255,255,255,0.55); line-height: 1.75; }
+
+    .signup-features { list-style: none; margin-top: 36px; display: flex; flex-direction: column; gap: 14px; }
+    .signup-features li {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 14px; color: rgba(255,255,255,0.7);
+    }
+    .signup-features li::before {
+      content: '';
+      width: 20px; height: 20px; border-radius: 50%;
+      background: rgba(122,158,135,0.25);
+      border: 1.5px solid var(--sage);
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%237a9e87' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+      background-size: 10px; background-repeat: no-repeat; background-position: center;
+    }
+
+    .signup-left-bottom {
+      position: relative; z-index: 1;
+      font-size: 12px; color: rgba(255,255,255,0.3);
+    }
+
+    /* Right panel */
+    .signup-right {
+      display: flex; flex-direction: column;
+      justify-content: center;
+      padding: 60px;
+      background: var(--warm-white);
+      overflow-y: auto;
+    }
+
+    .signup-form-wrap {
+      max-width: 420px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .signup-heading {
+      margin-bottom: 32px;
+    }
+    .signup-heading h1 { font-size: 30px; margin-bottom: 6px; }
+    .signup-heading p  { font-size: 14px; color: var(--mid-gray); }
+    .signup-heading p a { color: var(--sage-dark); font-weight: 500; }
+
+    .name-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+    }
+
+    .form-divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 24px 0;
+    }
+    .form-divider hr { flex: 1; border: none; border-top: 1px solid var(--light-gray); }
+    .form-divider span { font-size: 12px; color: var(--mid-gray); white-space: nowrap; }
+
+    .social-btns { display: flex; gap: 12px; }
+    .social-btn {
+      flex: 1; padding: 11px;
+      border: 1.5px solid var(--light-gray);
+      border-radius: var(--radius-sm);
+      background: white; cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px; color: var(--charcoal);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: var(--transition);
+    }
+    .social-btn:hover { border-color: var(--sage); }
+    .social-icon { font-size: 16px; }
+
+    .progress-steps {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 28px;
+    }
+    .step-dot {
+      width: 28px; height: 4px; border-radius: 2px;
+      background: var(--light-gray); transition: var(--transition);
+    }
+    .step-dot.active { background: var(--sage); width: 40px; }
+    .step-dot.done  { background: var(--sage-light); }
+
+    .submit-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--sage);
+      color: white;
+      border: none; border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px; font-weight: 500;
+      cursor: pointer; transition: var(--transition);
+      margin-top: 8px;
+      position: relative; overflow: hidden;
+    }
+    .submit-btn:hover { background: var(--sage-dark); transform: translateY(-1px); }
+    .submit-btn:active { transform: translateY(0); }
+    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .submit-btn .btn-text { transition: opacity 0.2s; }
+    .submit-btn .btn-loading { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; }
+
+    .spinner {
+      width: 18px; height: 18px; border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .form-global-error {
+      background: var(--error-bg);
+      border: 1px solid rgba(192,57,43,0.2);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      font-size: 13px; color: var(--error);
+      margin-bottom: 18px;
+      display: none;
+    }
+    .form-global-error.visible { display: block; }
+
+    .success-screen {
+      text-align: center;
+      padding: 20px 0;
+      display: none;
+    }
+    .success-icon {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: var(--success-bg);
+      margin: 0 auto 20px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+    }
+    .success-screen h2 { font-size: 26px; margin-bottom: 10px; }
+    .success-screen p  { font-size: 14px; color: var(--mid-gray); margin-bottom: 24px; }
+
+    /* Password strength colors */
+    .strength-weak   { background: #e74c3c; width: 25%; }
+    .strength-fair   { background: #e67e22; width: 50%; }
+    .strength-good   { background: #f1c40f; width: 75%; }
+    .strength-strong { background: var(--success); width: 100%; }
+
+    /* Tooltip */
+    .tooltip {
+      position: relative; display: inline-block; cursor: help;
+    }
+    .tooltip-text {
+      display: none;
+      position: absolute; bottom: 125%; left: 0;
+      background: var(--charcoal); color: white;
+      font-size: 11px; padding: 6px 10px; border-radius: 6px;
+      width: 220px; line-height: 1.5; z-index: 10;
+    }
+    .tooltip:hover .tooltip-text { display: block; }
+
+    @media (max-width: 768px) {
+      .signup-layout { grid-template-columns: 1fr; }
+      .signup-left   { display: none; }
+      .signup-right  { padding: 100px 24px 40px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Minimal nav for auth pages -->
+  <nav class="navbar" style="position:fixed">
+    <a href="{% url 'index' %}" class="nav-logo">
+      <div class="nav-logo-dot">&#9825;</div>
+      MindSpace
+    </a>
+    <div style="display:flex;gap:12px;">
+      <a href="{% url 'get_help' %}" class="btn btn-terra">Get help now</a>
+      <a href="{% url 'login' %}" class="btn btn-outline">Already have an account? Log in</a>
+    </div>
+  </nav>
+
+  <div class="signup-layout" style="padding-top:0">
+
+    <!-- LEFT PANEL -->
+    <div class="signup-left">
+      <div class="signup-left-bg b1"></div>
+      <div class="signup-left-bg b2"></div>
+
+      <div class="signup-left-logo">
+        <div class="nav-logo" style="color:white;font-family:'DM Serif Display',serif;font-size:22px">
+          <div class="nav-logo-dot">&#9825;</div>
+          MindSpace
+        </div>
+      </div>
+
+      <div class="signup-left-content">
+        <h2>Start your <em>wellness journey</em> today</h2>
+        <p>Join thousands of people using MindSpace to build better mental health habits, one day at a time.</p>
+        <ul class="signup-features">
+          <li>AI companion available 24 hours a day, 7 days a week</li>
+          <li>Daily mood tracking and emotional insights</li>
+          <li>Private and fully encrypted — your data stays yours</li>
+          <li>Guided breathing and mindfulness exercises</li>
+          <li>Weekly AI-powered progress reports</li>
+          <li>Free plan with no credit card required</li>
+        </ul>
+      </div>
+
+      <div class="signup-left-bottom">
+        MindSpace is not a substitute for professional mental health treatment.
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL — FORM -->
+    <div class="signup-right">
+      <div class="signup-form-wrap">
+
+        <div class="progress-steps">
+          <div class="step-dot active" id="step1-dot"></div>
+          <div class="step-dot" id="step2-dot"></div>
+          <div class="step-dot" id="step3-dot"></div>
+          <span id="step-label" style="font-size:12px;color:var(--mid-gray);margin-left:4px">Step 1 of 3</span>
+        </div>
+
+        <div class="signup-heading">
+          <h1>Create your account</h1>
+          <p>Already have one? <a href="{% url 'login' %}">Log in here</a></p>
+        </div>
+
+        <!-- Social signup -->
+        <div class="social-btns">
+          <button class="social-btn" type="button">
+            <span class="social-icon">G</span> Google
+          </button>
+          <button class="social-btn" type="button">
+            <span class="social-icon">&#128231;</span> Email magic link
+          </button>
+        </div>
+
+        <div class="form-divider">
+          <hr /><span>or sign up with email</span><hr />
+        </div>
+
+        <div id="global-error" class="form-global-error{% if form.errors %} visible{% endif %}">
+          {% if form.errors %}
+            {% for field in form %}{% for error in field.errors %}{{ field.label }}: {{ error }}<br>{% endfor %}{% endfor %}
+            {% for error in form.non_field_errors %}{{ error }}<br>{% endfor %}
+          {% else %}
+            Please fix the errors below before continuing.
+          {% endif %}
+        </div>
+
+        <!-- ── FORM ──────────────────────────────────── -->
+        <form id="signup-form" method="post" action="{% url 'signup' %}" novalidate>
+          {% csrf_token %}
+
+          <!-- STEP 1: Personal details -->
+          <div id="step-1">
+            <div class="name-row">
+              <div class="form-group">
+                <label for="first-name">First name</label>
+                <input type="text" id="first-name" name="first_name" placeholder="Roya" autocomplete="given-name" value="{{ form.first_name.value|default:'' }}" />
+                <div class="field-error" id="err-first-name">&#9888; Please enter your first name</div>
+              </div>
+              <div class="form-group">
+                <label for="last-name">Last name</label>
+                <input type="text" id="last-name" name="last_name" placeholder="Goronga" autocomplete="family-name" value="{{ form.last_name.value|default:'' }}" />
+                <div class="field-error" id="err-last-name">&#9888; Please enter your last name</div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email address</label>
+              <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email" value="{{ form.email.value|default:'' }}" />
+              <div class="field-error" id="err-email">&#9888; Please enter a valid email address</div>
+              <div class="field-success" id="ok-email">&#10003; Looks good!</div>
+            </div>
+
+            <div class="form-group">
+              <label for="dob">Date of birth
+                <span class="tooltip"> &#9432;
+                  <span class="tooltip-text">You must be 16 or older to use MindSpace.</span>
+                </span>
+              </label>
+              <input type="date" id="dob" name="date_of_birth" value="{{ form.date_of_birth.value|default:'' }}" />
+              <div class="field-error" id="err-dob">&#9888; You must be at least 16 years old</div>
+            </div>
+
+            <button type="button" class="submit-btn" onclick="nextStep(1)">
+              <span class="btn-text">Continue &rarr;</span>
+            </button>
+          </div>
+
+          <!-- STEP 2: Password -->
+          <div id="step-2" style="display:none">
+            <div class="form-group">
+              <label for="password">Create a password</label>
+              <div class="input-icon-wrap">
+                <input type="password" id="password" name="password" placeholder="Min. 8 characters" autocomplete="new-password" oninput="checkStrength(this.value)" />
+                <span class="input-icon" onclick="togglePwd('password', this)">&#128065;</span>
+              </div>
+              <div class="password-strength" id="pwd-strength" style="display:none">
+                <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+                <span class="strength-text" id="strength-text"></span>
+              </div>
+              <div class="field-error" id="err-password">&#9888; Password must be at least 8 characters</div>
+            </div>
+
+            <div class="form-group">
+              <label for="confirm-password">Confirm password</label>
+              <div class="input-icon-wrap">
+                <input type="password" id="confirm-password" name="confirm_password" placeholder="Repeat your password" autocomplete="new-password" />
+                <span class="input-icon" onclick="togglePwd('confirm-password', this)">&#128065;</span>
+              </div>
+              <div class="field-error" id="err-confirm-password">&#9888; Passwords do not match</div>
+              <div class="field-success" id="ok-confirm-password">&#10003; Passwords match</div>
+            </div>
+
+            <div style="display:flex;gap:10px;margin-top:4px">
+              <button type="button" class="submit-btn" style="background:transparent;color:var(--charcoal);border:1.5px solid var(--light-gray);flex:0 0 auto;width:80px" onclick="goStep(1)">&#8592; Back</button>
+              <button type="button" class="submit-btn" style="flex:1" onclick="nextStep(2)">Continue &rarr;</button>
+            </div>
+          </div>
+
+          <!-- STEP 3: Preferences & consent -->
+          <div id="step-3" style="display:none">
+            <div class="form-group">
+              <label for="focus">What brings you to MindSpace?</label>
+              <select id="focus" name="focus">
+                <option value="">Select a reason</option>
+                <option value="anxiety_stress">Managing anxiety or stress</option>
+                <option value="mood_tracking">Tracking my mood</option>
+                <option value="habits">Building healthy habits</option>
+                <option value="emotions">Processing difficult emotions</option>
+                <option value="therapy_support">Support between therapy sessions</option>
+                <option value="general_wellness">General mental wellness</option>
+                <option value="prefer_not_to_say">Prefer not to say</option>
+              </select>
+              <div class="field-error" id="err-focus">&#9888; Please select a reason</div>
+            </div>
+
+            <div class="form-group">
+              <label for="phone">Phone number <span style="color:var(--mid-gray);font-weight:400">(optional)</span></label>
+              <input type="tel" id="phone" name="phone" placeholder="+27 71 234 5678" autocomplete="tel" />
+              <div class="field-error" id="err-phone">&#9888; Please enter a valid phone number</div>
+            </div>
+
+            <div class="check-group">
+              <input type="checkbox" id="terms" name="terms" />
+              <label for="terms">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
+            </div>
+            <div class="field-error" id="err-terms" style="margin-top:-14px;margin-bottom:16px">&#9888; You must agree to continue</div>
+
+            <div class="check-group">
+              <input type="checkbox" id="marketing" name="marketing" />
+              <label for="marketing">Send me occasional wellness tips and product updates (you can unsubscribe any time)</label>
+            </div>
+
+            <div class="check-group">
+              <input type="checkbox" id="age-confirm" name="age_confirm" />
+              <label for="age-confirm">I confirm that I am 16 years of age or older</label>
+            </div>
+            <div class="field-error" id="err-age-confirm" style="margin-top:-14px;margin-bottom:16px">&#9888; You must confirm your age</div>
+
+            <div style="display:flex;gap:10px;margin-top:8px">
+              <button type="button" class="submit-btn" style="background:transparent;color:var(--charcoal);border:1.5px solid var(--light-gray);flex:0 0 auto;width:80px" onclick="goStep(2)">&#8592; Back</button>
+              <button type="submit" class="submit-btn" style="flex:1" id="submit-btn">
+                <span class="btn-text">Create my account</span>
+                <div class="btn-loading" id="btn-spinner"><div class="spinner"></div></div>
+              </button>
+            </div>
+          </div>
+
+        </form>
+
+        <!-- SUCCESS SCREEN -->
+        <div class="success-screen" id="success-screen">
+          <div class="success-icon">&#10003;</div>
+          <h2>Welcome to MindSpace!</h2>
+          <p>Your account has been created successfully. Check your email to verify your address, then start your wellness journey.</p>
+          <a href="{% url 'index' %}" class="btn btn-primary btn-large" style="display:inline-flex">Go to dashboard &rarr;</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentStep = 1;
+
+    // ── STEP NAVIGATION ──────────────────────────────────────
+    function goStep(n) {
+      document.getElementById('step-' + currentStep).style.display = 'none';
+      document.getElementById('step-' + n).style.display = 'block';
+      currentStep = n;
+      updateProgress();
+    }
+
+    function updateProgress() {
+      [1,2,3].forEach(i => {
+        const dot = document.getElementById('step'+i+'-dot');
+        dot.className = 'step-dot';
+        if (i < currentStep)  dot.classList.add('done');
+        if (i === currentStep) dot.classList.add('active');
+      });
+      document.getElementById('step-label').textContent = `Step ${currentStep} of 3`;
+    }
+
+    // ── VALIDATION HELPERS ───────────────────────────────────
+    function showErr(id, msg) {
+      const el = document.getElementById(id);
+      if (msg) el.innerHTML = '&#9888; ' + msg;
+      el.classList.add('visible');
+    }
+    function hideErr(id) { document.getElementById(id).classList.remove('visible'); }
+    function showOk(id)  { document.getElementById(id).classList.add('visible'); }
+    function hideOk(id)  { document.getElementById(id).classList.remove('visible'); }
+    function setInputState(el, state) {
+      el.classList.remove('error','success');
+      if (state) el.classList.add(state);
+    }
+
+    // ── REAL-TIME VALIDATION ─────────────────────────────────
+    document.getElementById('email').addEventListener('blur', function() {
+      const val = this.value.trim();
+      const re  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!val)           { showErr('err-email','Please enter your email address'); setInputState(this,'error'); hideOk('ok-email'); }
+      else if (!re.test(val)) { showErr('err-email','Please enter a valid email address'); setInputState(this,'error'); hideOk('ok-email'); }
+      else                { hideErr('err-email'); setInputState(this,'success'); showOk('ok-email'); }
+    });
+
+    document.getElementById('confirm-password').addEventListener('input', function() {
+      const pwd = document.getElementById('password').value;
+      if (!this.value)         { hideErr('err-confirm-password'); hideOk('ok-confirm-password'); return; }
+      if (this.value !== pwd)  { showErr('err-confirm-password','Passwords do not match'); setInputState(this,'error'); hideOk('ok-confirm-password'); }
+      else                     { hideErr('err-confirm-password'); setInputState(this,'success'); showOk('ok-confirm-password'); }
+    });
+
+    document.getElementById('phone').addEventListener('input', function() {
+      if (!this.value) return;
+      const re = /^[+]?[\d\s\-().]{7,15}$/;
+      if (!re.test(this.value)) { showErr('err-phone','Please enter a valid phone number'); setInputState(this,'error'); }
+      else { hideErr('err-phone'); setInputState(this,'success'); }
+    });
+
+    // ── PASSWORD STRENGTH ────────────────────────────────────
+    function checkStrength(val) {
+      const wrap = document.getElementById('pwd-strength');
+      const fill = document.getElementById('strength-fill');
+      const text = document.getElementById('strength-text');
+      if (!val) { wrap.style.display='none'; return; }
+      wrap.style.display='block';
+      let score = 0;
+      if (val.length >= 8)  score++;
+      if (val.length >= 12) score++;
+      if (/[A-Z]/.test(val)) score++;
+      if (/[0-9]/.test(val)) score++;
+      if (/[^A-Za-z0-9]/.test(val)) score++;
+      fill.className = 'strength-fill';
+      if (score <= 1)      { fill.classList.add('strength-weak');   text.textContent = 'Weak — try adding numbers and symbols'; text.style.color='#e74c3c'; }
+      else if (score <= 2) { fill.classList.add('strength-fair');   text.textContent = 'Fair — add uppercase and special characters'; text.style.color='#e67e22'; }
+      else if (score <= 3) { fill.classList.add('strength-good');   text.textContent = 'Good — almost there!'; text.style.color='#b7860b'; }
+      else                 { fill.classList.add('strength-strong'); text.textContent = 'Strong password'; text.style.color=getComputedStyle(document.documentElement).getPropertyValue('--success'); }
+    }
+
+    // ── TOGGLE PASSWORD VISIBILITY ───────────────────────────
+    function togglePwd(id, icon) {
+      const inp = document.getElementById(id);
+      if (inp.type === 'password') { inp.type = 'text'; icon.textContent = '🙈'; }
+      else                         { inp.type = 'password'; icon.innerHTML = '&#128065;'; }
+    }
+
+    // ── STEP 1 VALIDATION ────────────────────────────────────
+    function validateStep1() {
+      let ok = true;
+      const first = document.getElementById('first-name').value.trim();
+      const last  = document.getElementById('last-name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const dob   = document.getElementById('dob').value;
+      const re    = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if (!first) { showErr('err-first-name','Please enter your first name'); setInputState(document.getElementById('first-name'),'error'); ok=false; }
+      else { hideErr('err-first-name'); setInputState(document.getElementById('first-name'),'success'); }
+
+      if (!last) { showErr('err-last-name','Please enter your last name'); setInputState(document.getElementById('last-name'),'error'); ok=false; }
+      else { hideErr('err-last-name'); setInputState(document.getElementById('last-name'),'success'); }
+
+      if (!email || !re.test(email)) { showErr('err-email','Please enter a valid email address'); setInputState(document.getElementById('email'),'error'); hideOk('ok-email'); ok=false; }
+      else { hideErr('err-email'); setInputState(document.getElementById('email'),'success'); showOk('ok-email'); }
+
+      if (!dob) { showErr('err-dob','Please enter your date of birth'); setInputState(document.getElementById('dob'),'error'); ok=false; }
+      else {
+        const age = Math.floor((new Date() - new Date(dob)) / (1000*60*60*24*365.25));
+        if (age < 16) { showErr('err-dob','You must be at least 16 years old to use MindSpace'); setInputState(document.getElementById('dob'),'error'); ok=false; }
+        else          { hideErr('err-dob'); setInputState(document.getElementById('dob'),'success'); }
+      }
+      return ok;
+    }
+
+    // ── STEP 2 VALIDATION ────────────────────────────────────
+    function validateStep2() {
+      let ok = true;
+      const pwd     = document.getElementById('password').value;
+      const confirm = document.getElementById('confirm-password').value;
+
+      if (pwd.length < 8) { showErr('err-password','Password must be at least 8 characters'); setInputState(document.getElementById('password'),'error'); ok=false; }
+      else { hideErr('err-password'); setInputState(document.getElementById('password'),'success'); }
+
+      if (!confirm)        { showErr('err-confirm-password','Please confirm your password'); setInputState(document.getElementById('confirm-password'),'error'); hideOk('ok-confirm-password'); ok=false; }
+      else if (pwd !== confirm) { showErr('err-confirm-password','Passwords do not match'); setInputState(document.getElementById('confirm-password'),'error'); hideOk('ok-confirm-password'); ok=false; }
+      else { hideErr('err-confirm-password'); setInputState(document.getElementById('confirm-password'),'success'); showOk('ok-confirm-password'); }
+      return ok;
+    }
+
+    // ── STEP 3 VALIDATION ────────────────────────────────────
+    function validateStep3() {
+      let ok = true;
+      const focus = document.getElementById('focus').value;
+      const terms = document.getElementById('terms').checked;
+      const age   = document.getElementById('age-confirm').checked;
+      const phone = document.getElementById('phone').value;
+
+      if (!focus) { showErr('err-focus','Please select what brings you to MindSpace'); ok=false; }
+      else hideErr('err-focus');
+
+      if (phone) {
+        const re = /^[+]?[\d\s\-().]{7,15}$/;
+        if (!re.test(phone)) { showErr('err-phone','Please enter a valid phone number'); setInputState(document.getElementById('phone'),'error'); ok=false; }
+        else { hideErr('err-phone'); setInputState(document.getElementById('phone'),'success'); }
+      }
+
+      if (!terms) { showErr('err-terms','You must agree to the Terms of Service to continue'); ok=false; }
+      else hideErr('err-terms');
+
+      if (!age) { showErr('err-age-confirm','You must confirm you are 16 or older'); ok=false; }
+      else hideErr('err-age-confirm');
+
+      return ok;
+    }
+
+    // ── NEXT STEP HANDLER ────────────────────────────────────
+    function nextStep(step) {
+      const valid = step === 1 ? validateStep1() : validateStep2();
+      if (!valid) {
+        document.getElementById('global-error').classList.add('visible');
+        return;
+      }
+      document.getElementById('global-error').classList.remove('visible');
+      goStep(step + 1);
+    }
+
+    // ── FORM SUBMIT ──────────────────────────────────────────
+    document.getElementById('signup-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      if (!validateStep3()) {
+        document.getElementById('global-error').classList.add('visible');
+        return;
+      }
+      document.getElementById('global-error').classList.remove('visible');
+
+      // Show spinner while the real request is in flight
+      const btn = document.getElementById('submit-btn');
+      btn.disabled = true;
+      btn.querySelector('.btn-text').style.opacity = '0';
+      btn.querySelector('#btn-spinner').style.display = 'flex';
+
+      // Client-side checks passed — submit for real. Django will create the
+      // account, log the user in, and redirect to the dashboard. If the
+      // server rejects it (e.g. duplicate email), it re-renders this page
+      // with the errors shown in the banner above.
+      this.submit();
+    });
+
+    // If the server re-rendered this page with errors, jump back to step 1
+    // so the person can see and fix them (step 1 covers the most common
+    // server-side failures, like a duplicate email).
+    {% if form.errors %}
+    goStep(1);
+    {% endif %}
+
+    // Scroll to top on load
+    window.addEventListener('load', () => window.scrollTo(0,0));
+  </script>
+</body>
+</html>

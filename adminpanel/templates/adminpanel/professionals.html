@@ -1,0 +1,16 @@
+{% extends "adminpanel/base.html" %}{% block title %}Professionals{% endblock %}
+{% block content %}
+<div class="head"><div><h1>Professionals</h1><p class="muted">Review applications and manage verified professionals.</p></div>
+  <a class="btn" href="{% url 'adminpanel:professional_add' %}">+ Add professional</a></div>
+<div class="tabs"><a href="?status=pending" class="{% if status == 'pending' %}on{% endif %}">Pending ({{ counts.pending }})</a><a href="?status=approved" class="{% if status == 'approved' %}on{% endif %}">Approved ({{ counts.approved }})</a><a href="?status=rejected" class="{% if status == 'rejected' %}on{% endif %}">Rejected ({{ counts.rejected }})</a><a href="?status=suspended" class="{% if status == 'suspended' %}on{% endif %}">Suspended ({{ counts.suspended }})</a><a href="?status=all" class="{% if status == 'all' %}on{% endif %}">All</a></div>
+<form class="inline" method="get" style="margin-bottom:14px"><input type="hidden" name="status" value="{{ status }}"><input name="q" value="{{ q }}" placeholder="Name, email, registration no. or city"><button class="btn outline">Search</button></form>
+<div class="card" style="padding:6px 10px"><table>
+  <tr><th>Name</th><th>Profession</th><th>Registered with</th><th>Location</th><th>Status</th><th>Applied</th></tr>
+  {% for p in rows %}<tr class="link" onclick="location.href='{% url 'adminpanel:professional_detail' p.id %}'">
+    <td>{{ p.display_name }}<div class="small muted">{{ p.email }}</div></td><td>{{ p.profession_label }}</td>
+    <td>{{ p.regulator }} · {{ p.registration_number }}</td><td>{{ p.city }}, {{ p.province }}</td>
+    <td>{% if p.status == 'approved' %}<span class="pill ok">Approved</span>{% elif p.status == 'pending' %}<span class="pill warn">Pending</span>{% elif p.status == 'rejected' %}<span class="pill">Rejected</span>{% else %}<span class="pill admin">Suspended</span>{% endif %}</td>
+    <td class="muted">{{ p.created_at|date:"j M Y" }}</td></tr>
+  {% empty %}<tr><td colspan="6" class="muted">Nothing here.</td></tr>{% endfor %}
+</table></div>
+{% endblock %}

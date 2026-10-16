@@ -1,0 +1,386 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MindSpace — Your Mental Health Companion</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  <style>
+  
+    .hero {
+      min-height: 100vh;
+      display: flex; align-items: center;
+      background: var(--cream);
+      padding: 0 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-bg-circle {
+      position: absolute;
+      border-radius: 50%;
+      background: var(--sage-light);
+      opacity: 0.15;
+      pointer-events: none;
+    }
+    .hero-bg-circle.c1 { width: 500px; height: 500px; top: -100px; right: -100px; }
+    .hero-bg-circle.c2 { width: 300px; height: 300px; bottom: 60px; left: 40px; opacity: 0.1; }
+
+    .hero-inner {
+      max-width: 1100px; margin: 0 auto; width: 100%;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 80px; align-items: center;
+    }
+
+    .hero-text .tag-pill { animation: fadeUp 0.6s ease forwards; }
+
+    .hero-text h1 {
+      font-size: clamp(40px, 5vw, 62px);
+      margin-bottom: 20px;
+      animation: fadeUp 0.6s 0.1s ease forwards; opacity: 0;
+    }
+
+    .hero-text h1 em {
+      font-style: italic;
+      color: var(--sage-dark);
+    }
+
+    .hero-text p {
+      font-size: 17px; color: var(--mid-gray);
+      line-height: 1.8; max-width: 440px;
+      margin-bottom: 36px;
+      animation: fadeUp 0.6s 0.2s ease forwards; opacity: 0;
+    }
+
+    .hero-actions {
+      display: flex; align-items: center; gap: 16px;
+      animation: fadeUp 0.6s 0.3s ease forwards; opacity: 0;
+    }
+
+    .hero-note {
+      font-size: 12px; color: var(--mid-gray);
+      margin-top: 14px;
+      animation: fadeUp 0.6s 0.4s ease forwards; opacity: 0;
+    }
+
+    .hero-visual {
+      display: flex; justify-content: center; align-items: center;
+      animation: fadeIn 0.8s 0.4s ease forwards; opacity: 0;
+    }
+
+    .hero-card {
+      background: white;
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: var(--shadow-med);
+      width: 320px;
+      animation: float 5s ease-in-out infinite;
+    }
+
+    .hc-header {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 24px;
+    }
+    .hc-avatar {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: var(--sage-light); display: flex;
+      align-items: center; justify-content: center;
+      font-size: 20px;
+    }
+    .hc-name { font-weight: 500; font-size: 14px; }
+    .hc-sub  { font-size: 12px; color: var(--mid-gray); }
+
+    .hc-bubble {
+      background: var(--cream);
+      border-radius: 12px 12px 12px 4px;
+      padding: 12px 14px;
+      font-size: 13px; line-height: 1.6;
+      color: var(--charcoal);
+      margin-bottom: 12px;
+    }
+
+    .hc-bubble.user {
+      background: var(--sage);
+      color: white;
+      border-radius: 12px 12px 4px 12px;
+    }
+
+    .hc-mood-row {
+      display: flex; gap: 8px; margin-top: 16px;
+    }
+
+    .hc-mood-btn {
+      flex: 1; padding: 8px 4px; text-align: center;
+      background: var(--cream);
+      border-radius: 10px; font-size: 18px;
+      cursor: pointer; transition: var(--transition);
+    }
+    .hc-mood-btn.active { background: var(--sage-light); }
+
+    /* ── TRUST BAR ─────────────────────────────────────────── */
+    .trust-bar {
+      background: white;
+      padding: 28px 60px;
+      border-bottom: 1px solid var(--cream-dark);
+    }
+    .trust-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .trust-label { font-size: 12px; color: var(--mid-gray); text-transform: uppercase; letter-spacing: 0.06em; }
+    .trust-stats { display: flex; gap: 48px; }
+    .trust-stat { text-align: center; }
+    .trust-stat strong { display: block; font-size: 22px; font-family: 'DM Serif Display', serif; color: var(--charcoal); }
+    .trust-stat span { font-size: 12px; color: var(--mid-gray); }
+
+    /* ── FEATURES SECTION ──────────────────────────────────── */
+    .features-header { text-align: center; margin-bottom: 60px; }
+    .features-header h2 { font-size: 40px; margin-bottom: 14px; }
+    .features-header p { font-size: 16px; color: var(--mid-gray); max-width: 520px; margin: 0 auto; }
+
+    .features-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .feature-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 32px;
+      border: 1px solid var(--cream-dark);
+      transition: var(--transition);
+    }
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-med);
+      border-color: var(--sage-light);
+    }
+
+    .feature-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; margin-bottom: 18px;
+    }
+    .icon-sage   { background: rgba(122,158,135,0.12); }
+    .icon-terra  { background: rgba(196,113,74,0.1); }
+    .icon-cream  { background: var(--cream-dark); }
+
+    .feature-card h3 { font-size: 18px; margin-bottom: 10px; }
+    .feature-card p  { font-size: 14px; color: var(--mid-gray); line-height: 1.7; }
+
+    /* ── HOW IT WORKS ──────────────────────────────────────── */
+    .how-section { background: var(--cream); }
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-top: 60px; }
+    .step { text-align: center; }
+    .step-num {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: var(--sage); color: white;
+      font-family: 'DM Serif Display', serif; font-size: 22px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 18px;
+    }
+    .step h3 { font-size: 18px; margin-bottom: 10px; }
+    .step p  { font-size: 14px; color: var(--mid-gray); }
+
+    /* ── TESTIMONIALS ──────────────────────────────────────── */
+    .testi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .testi-card {
+      background: var(--cream);
+      border-radius: var(--radius);
+      padding: 28px;
+    }
+    .testi-text { font-size: 15px; font-style: italic; line-height: 1.75; margin-bottom: 20px; color: var(--charcoal); }
+    .testi-author { display: flex; align-items: center; gap: 10px; }
+    .testi-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--sage-light); display: flex;
+      align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 500; color: var(--sage-dark);
+    }
+    .testi-name { font-size: 13px; font-weight: 500; }
+    .testi-role { font-size: 12px; color: var(--mid-gray); }
+
+    /* ── CTA SECTION ───────────────────────────────────────── */
+    .cta-section {
+      background: var(--charcoal);
+      text-align: center;
+      padding: 100px 60px;
+    }
+    .cta-section h2 { color: white; font-size: 42px; margin-bottom: 16px; }
+    .cta-section p  { color: rgba(255,255,255,0.6); font-size: 16px; margin-bottom: 36px; }
+    .cta-section .btn-primary { font-size: 16px; padding: 16px 40px; }
+  </style>
+</head>
+<body>
+  <div id="navbar-placeholder"></div>
+
+  <div class="page-content">
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-bg-circle c1"></div>
+      <div class="hero-bg-circle c2"></div>
+      <div class="hero-inner">
+        <div class="hero-text">
+          <span class="tag-pill">Mental wellness, reimagined</span>
+          <h1>Your personal <em>mental health</em> companion</h1>
+          <p>MindSpace combines AI-powered support, mood tracking, and guided exercises to help you build lasting emotional resilience — available 24/7, judgement-free.</p>
+          <div class="hero-actions">
+            <a href="{% url 'signup' %}" class="btn btn-primary btn-large">Start for free</a>
+            <a href="{% url 'about' %}" class="btn btn-outline btn-large">Learn more</a>
+          </div>
+          <p class="hero-note">No credit card required &nbsp;·&nbsp; Free plan available</p>
+        </div>
+        <div class="hero-visual">
+          <div class="hero-card">
+            <div class="hc-header">
+              <div class="hc-avatar">&#9825;</div>
+              <div>
+                <div class="hc-name">MindSpace AI</div>
+                <div class="hc-sub">Always here for you</div>
+              </div>
+            </div>
+            <div class="hc-bubble">How are you feeling today? I'm here to listen, without judgement.</div>
+            <div class="hc-bubble user">I've been feeling really overwhelmed lately...</div>
+            <div class="hc-bubble">That sounds really tough. Would you like to talk about what's been weighing on you most?</div>
+            <div class="hc-mood-row">
+              <div class="hc-mood-btn">😞</div>
+              <div class="hc-mood-btn">😕</div>
+              <div class="hc-mood-btn active">😐</div>
+              <div class="hc-mood-btn">🙂</div>
+              <div class="hc-mood-btn">😄</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TRUST BAR -->
+    <div class="trust-bar">
+      <div class="trust-inner">
+        <span class="trust-label">Trusted by people worldwide</span>
+        <div class="trust-stats">
+          <div class="trust-stat"><strong>50k+</strong><span>Active users</span></div>
+          <div class="trust-stat"><strong>4.9★</strong><span>User rating</span></div>
+          <div class="trust-stat"><strong>24/7</strong><span>AI availability</span></div>
+          <div class="trust-stat"><strong>100%</strong><span>Private & secure</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FEATURES -->
+    <section class="section" style="background: white;">
+      <div class="container">
+        <div class="features-header scroll-reveal">
+          <span class="tag-pill">What we offer</span>
+          <h2>Everything you need to <em>thrive</em></h2>
+          <p>A complete toolkit for mental wellness, powered by compassionate AI and evidence-based practices.</p>
+        </div>
+        <div class="features-grid">
+          <div class="feature-card scroll-reveal">
+            <div class="feature-icon icon-sage">&#129504;</div>
+            <h3>AI Chat Companion</h3>
+            <p>Have meaningful, supportive conversations with our empathetic AI — available any time, day or night, without judgement.</p>
+          </div>
+          <div class="feature-card scroll-reveal">
+            <div class="feature-icon icon-terra">&#128200;</div>
+            <h3>Mood Tracking</h3>
+            <p>Log your daily emotions and uncover patterns over time. Gain insights into what affects your mood and wellbeing.</p>
+          </div>
+          <div class="feature-card scroll-reveal">
+            <div class="feature-icon icon-cream">&#128221;</div>
+            <h3>Guided Journaling</h3>
+            <p>Write freely or follow AI-powered prompts. Your journal entries are analysed to surface emotional themes gently.</p>
+          </div>
+          <div class="feature-card scroll-reveal">
+            <div class="feature-icon icon-sage">&#127754;</div>
+            <h3>Breathing Exercises</h3>
+            <p>Scientifically-backed breathing techniques — from calming 4-7-8 breathing to energising box breathing patterns.</p>
+          </div>
+          <div class="feature-card scroll-reveal">
+            <div class="feature-icon icon-terra">&#128202;</div>
+            <h3>Weekly Insights</h3>
+            <p>Receive personalised AI-generated reports that highlight your progress, patterns, and areas of opportunity each week.</p>
+          </div>
+          <div class="feature-card scroll-reveal">
+            <div class="feature-icon icon-cream">&#128100;</div>
+            <h3>Therapist Connect</h3>
+            <p>When you're ready for professional support, connect with licensed therapists directly through the platform.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="section how-section">
+      <div class="container">
+        <div class="features-header scroll-reveal">
+          <span class="tag-pill">How it works</span>
+          <h2>Simple to start, <em>powerful</em> to use</h2>
+        </div>
+        <div class="steps">
+          <div class="step scroll-reveal">
+            <div class="step-num">1</div>
+            <h3>Create your account</h3>
+            <p>Sign up in under two minutes. No lengthy forms, no credit card required to get started.</p>
+          </div>
+          <div class="step scroll-reveal">
+            <div class="step-num">2</div>
+            <h3>Tell us how you feel</h3>
+            <p>Complete your first mood check-in and let MindSpace personalise your experience from day one.</p>
+          </div>
+          <div class="step scroll-reveal">
+            <div class="step-num">3</div>
+            <h3>Build your resilience</h3>
+            <p>Chat, journal, breathe, and track — every day brings you closer to lasting emotional wellbeing.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TESTIMONIALS -->
+    <section class="section" style="background: white;">
+      <div class="container">
+        <div class="features-header scroll-reveal">
+          <span class="tag-pill">Stories</span>
+          <h2>What our users say</h2>
+        </div>
+        <div class="testi-grid">
+          <div class="testi-card scroll-reveal">
+            <p class="testi-text">"MindSpace has been a game changer for my anxiety. Having something available at 3am when my thoughts spiral is genuinely life-changing."</p>
+            <div class="testi-author">
+              <div class="testi-avatar">SK</div>
+              <div><div class="testi-name">Sarah K.</div><div class="testi-role">Graduate student</div></div>
+            </div>
+          </div>
+          <div class="testi-card scroll-reveal">
+            <p class="testi-text">"The weekly insights helped me realise that my mood dips every Sunday. Now I plan ahead. Such a small thing, such a big difference."</p>
+            <div class="testi-author">
+              <div class="testi-avatar">JM</div>
+              <div><div class="testi-name">James M.</div><div class="testi-role">Software engineer</div></div>
+            </div>
+          </div>
+          <div class="testi-card scroll-reveal">
+            <p class="testi-text">"I was sceptical about an AI companion, but MindSpace genuinely listens. It bridges the gap between therapy sessions perfectly."</p>
+            <div class="testi-author">
+              <div class="testi-avatar">NR</div>
+              <div><div class="testi-name">Nomsa R.</div><div class="testi-role">Teacher</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+      <h2>Begin your wellness journey today</h2>
+      <p>Join thousands of people building better mental health habits with MindSpace.</p>
+      <a href="{% url 'signup' %}" class="btn btn-primary btn-large">Create your free account</a>
+    </section>
+
+  </div>
+
+  <div id="footer-placeholder"></div>
+  <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

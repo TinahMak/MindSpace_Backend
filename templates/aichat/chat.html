@@ -1,0 +1,229 @@
+{% load static %}
+{% load wellness_extras %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Chat — MindSpace</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  <style>
+    body { background: var(--cream); }
+    .chat-wrap {
+      max-width: 780px; margin: 0 auto;
+      padding: 100px 24px 24px;
+      min-height: 100vh; display: flex; flex-direction: column;
+    }
+    .chat-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .chat-top h1 { font-size: 24px; }
+    .chat-top-actions { display: flex; gap: 10px; align-items: center; }
+    .chat-top-actions form { display: inline; }
+    .new-chat-btn {
+      background: transparent; border: 1.5px solid var(--light-gray); color: var(--charcoal);
+      padding: 8px 16px; border-radius: 50px; font-size: 13px; cursor: pointer;
+      font-family: 'DM Sans', sans-serif; transition: var(--transition);
+    }
+    .new-chat-btn:hover { border-color: var(--sage); color: var(--sage-dark); }
+
+    .disclaimer-strip {
+      background: var(--cream-dark); border-radius: var(--radius-sm);
+      padding: 10px 16px; font-size: 12px; color: var(--mid-gray);
+      margin-bottom: 16px; text-align: center;
+    }
+
+    .crisis-banner {
+      background: var(--error-bg); border: 1px solid rgba(192,57,43,0.25);
+      border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px;
+    }
+    .crisis-banner strong { color: var(--error); display: block; font-size: 14px; margin-bottom: 4px; }
+    .crisis-banner p { font-size: 13px; color: var(--charcoal); line-height: 1.6; }
+    .crisis-banner .crisis-number { font-weight: 600; color: var(--error); }
+
+    .ai-error-banner {
+      background: var(--error-bg); color: var(--error);
+      border-radius: var(--radius-sm); padding: 10px 16px; font-size: 13px; margin-bottom: 16px;
+    }
+
+    .chat-thread {
+      flex: 1; display: flex; flex-direction: column; gap: 14px;
+      overflow-y: auto; padding: 8px 4px 20px;
+    }
+    .empty-state { text-align: center; color: var(--mid-gray); font-size: 14px; margin-top: 60px; }
+    .empty-state .em { font-size: 40px; display: block; margin-bottom: 12px; }
+
+    .msg-row { display: flex; }
+    .msg-row.user { justify-content: flex-end; }
+    .msg-row.assistant { justify-content: flex-start; }
+
+    .msg-bubble {
+      max-width: 72%; padding: 12px 16px; border-radius: 16px;
+      font-size: 14px; line-height: 1.6; white-space: pre-wrap;
+    }
+    .msg-row.user .msg-bubble { background: var(--sage); color: white; border-bottom-right-radius: 4px; }
+    .msg-row.assistant .msg-bubble { background: white; color: var(--charcoal); border-bottom-left-radius: 4px; box-shadow: var(--shadow-soft); }
+    .msg-row.user .msg-bubble.crisis { background: var(--terra); }
+
+    .msg-image { max-width: 220px; border-radius: 12px; margin-bottom: 8px; display: block; }
+
+    .mood-suggest-card {
+      margin-top: 8px; max-width: 72%; background: var(--cream);
+      border: 1px solid var(--sage-light); border-radius: 14px;
+      padding: 12px 14px; font-size: 13px;
+    }
+    .mood-suggest-card .msc-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .mood-suggest-card .em { font-size: 20px; }
+    .mood-suggest-card .msc-label { font-weight: 500; color: var(--charcoal); }
+    .mood-suggest-card .msc-tags { color: var(--mid-gray); font-size: 12px; }
+    .mood-suggest-btn {
+      background: var(--sage); color: white; border: none; border-radius: 50px;
+      padding: 7px 16px; font-size: 12px; font-weight: 500; cursor: pointer;
+      font-family: 'DM Sans', sans-serif; transition: var(--transition);
+    }
+    .mood-suggest-btn:hover { background: var(--sage-dark); }
+    .mood-logged-note { color: var(--success); font-size: 12px; font-weight: 500; }
+
+    .chat-input-card {
+      background: white; border-radius: var(--radius);
+      padding: 16px; box-shadow: var(--shadow-soft); margin-top: 8px;
+    }
+    .chat-input-row { display: flex; gap: 10px; align-items: flex-end; }
+    .chat-input-row textarea {
+      flex: 1; border: 1.5px solid var(--light-gray); border-radius: var(--radius-sm);
+      padding: 12px 14px; font-family: 'DM Sans', sans-serif; font-size: 14px;
+      resize: none; min-height: 46px; max-height: 140px;
+    }
+    .chat-input-row textarea:focus { outline: none; border-color: var(--sage); }
+
+    .attach-btn {
+      width: 46px; height: 46px; border-radius: var(--radius-sm);
+      border: 1.5px solid var(--light-gray); background: white; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; font-size: 18px;
+      flex-shrink: 0; transition: var(--transition);
+    }
+    .attach-btn:hover { border-color: var(--sage); }
+    .attach-btn input[type="file"] { display: none; }
+
+    .send-btn {
+      background: var(--sage); color: white; border: none; border-radius: var(--radius-sm);
+      padding: 0 20px; height: 46px; font-family: 'DM Sans', sans-serif; font-size: 14px;
+      font-weight: 500; cursor: pointer; transition: var(--transition); flex-shrink: 0;
+    }
+    .send-btn:hover { background: var(--sage-dark); }
+
+    .image-preview-name { font-size: 12px; color: var(--sage-dark); margin-top: 6px; padding-left: 4px; }
+    .form-errors { background: var(--error-bg); color: var(--error); border-radius: var(--radius-sm); padding: 8px 14px; font-size: 12px; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <nav class="navbar" style="position:fixed">
+    <a href="{% url 'index' %}" class="nav-logo">
+      <div class="nav-logo-dot">&#9825;</div>
+      MindSpace
+    </a>
+    <div style="display:flex;gap:12px;">
+      <a href="{% url 'get_help' %}" class="btn btn-terra">Get help now</a>
+      <a href="{% url 'dashboard' %}" class="btn btn-outline">Dashboard</a>
+      <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-outline">Log out</button>
+      </form>
+    </div>
+  </nav>
+
+  <div class="chat-wrap">
+    <div class="chat-top">
+      <h1>AI Companion</h1>
+      <div class="chat-top-actions">
+        <form method="post" action="{% url 'chat_new' %}">
+          {% csrf_token %}
+          <button type="submit" class="new-chat-btn">+ New chat</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="disclaimer-strip">
+      This AI companion offers support and a listening ear — it is not a licensed therapist and can't provide diagnoses or treatment. In a crisis, contact a professional or emergency services.
+    </div>
+
+    {% if show_crisis_banner %}
+      <div class="crisis-banner">
+        <strong>&#9888; You're not alone.</strong>
+        <p>Something you shared sounds really heavy. If you're thinking about suicide or self-harm, please reach out right now: <span class="crisis-number">SA Suicide Crisis Line — {{ crisis_line }}</span> (24/7). If you're in immediate danger, contact emergency services.</p>
+      </div>
+    {% endif %}
+
+    {% if ai_error %}
+      <div class="ai-error-banner">{{ ai_error }}</div>
+    {% endif %}
+
+    <div class="chat-thread">
+      {% if not messages %}
+        <div class="empty-state">
+          <span class="em">&#128172;</span>
+          Say hello, share what's on your mind, or attach a photo — I'm here to listen.
+        </div>
+      {% endif %}
+      {% for m in messages %}
+        <div class="msg-row {{ m.role }}">
+          <div class="msg-bubble {% if m.is_crisis %}crisis{% endif %}">
+            {% if m.image %}<img src="{{ m.image.url }}" class="msg-image" alt="Shared photo" />{% endif %}
+            {% if m.content %}{{ m.content }}{% endif %}
+          </div>
+        </div>
+        {% if m.suggested_mood %}
+          <div class="mood-suggest-card">
+            <div class="msc-row">
+              <span class="em">{{ mood_emoji|dictitem:m.suggested_mood }}</span>
+              <span class="msc-label">Feeling {{ mood_labels|dictitem:m.suggested_mood|lower }}</span>
+              {% if m.suggested_emotions %}
+                <span class="msc-tags">&mdash; {% for tag in m.suggested_emotions %}{{ tag|title }}{% if not forloop.last %}, {% endif %}{% endfor %}</span>
+              {% endif %}
+            </div>
+            {% if m.mood_logged %}
+              <span class="mood-logged-note">&#10003; Logged to today's mood</span>
+            {% else %}
+              <form method="post" action="{% url 'chat_log_mood' m.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="mood-suggest-btn">Log this as today's mood</button>
+              </form>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="chat-input-card">
+      {% if error %}
+        <div class="form-errors">{% for e in error %}{{ e }} {% endfor %}</div>
+      {% endif %}
+      <form method="post" enctype="multipart/form-data" id="chat-form">
+        {% csrf_token %}
+        <div class="chat-input-row">
+          <label class="attach-btn" title="Attach a photo">
+            &#128247;
+            <input type="file" name="image" accept="image/*" id="chat-image-input" onchange="document.getElementById('img-name').textContent = this.files[0] ? this.files[0].name : '';">
+          </label>
+          <textarea name="content" placeholder="Type a message..." rows="1"></textarea>
+          <button type="submit" class="send-btn">Send</button>
+        </div>
+        <div class="image-preview-name" id="img-name"></div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Auto-scroll to the latest message on load
+    const thread = document.querySelector('.chat-thread');
+    if (thread) thread.scrollTop = thread.scrollHeight;
+
+    // Auto-grow the textarea a little as the user types
+    const ta = document.querySelector('.chat-input-row textarea');
+    if (ta) {
+      ta.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 140) + 'px';
+      });
+    }
+  </script>
+</body>
+</html>

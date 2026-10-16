@@ -1,0 +1,9 @@
+{% extends "adminpanel/base.html" %}{% block title %}Audit log{% endblock %}
+{% block content %}
+<div class="head"><div><h1>Audit log</h1><p class="muted">Every admin action is recorded here and can't be edited.</p></div></div>
+<div class="card" style="padding:6px 10px"><table>
+  <tr><th>When</th><th>Admin</th><th>Action</th><th>Account</th><th>Detail</th></tr>
+  {% for a in rows %}<tr><td class="muted">{{ a.created_at|date:"j M Y, H:i" }}</td><td>{{ a.actor }}</td><td><span class="pill">{{ a.action }}</span></td><td>{{ a.target|default:"–" }}</td><td class="muted small">{{ a.detail }}</td></tr>
+  {% empty %}<tr><td colspan="5" class="muted">No admin actions yet.</td></tr>{% endfor %}
+</table></div>
+{% endblock %}

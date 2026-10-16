@@ -1,0 +1,102 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Get Help — MindSpace</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  <style>
+    .help-wrap { max-width: 680px; margin: 0 auto; padding: 120px 24px 80px; }
+    .help-wrap h1 { font-size: 34px; margin-bottom: 10px; }
+    .help-wrap > p.lead { font-size: 15px; color: var(--mid-gray); line-height: 1.7; margin-bottom: 32px; }
+
+    .crisis-main-card {
+      background: var(--terra); color: white; border-radius: var(--radius);
+      padding: 32px; margin-bottom: 28px;
+    }
+    .crisis-main-card .crisis-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.85; margin-bottom: 6px; }
+    .crisis-main-card .crisis-name { font-size: 20px; font-weight: 500; margin-bottom: 4px; }
+    .crisis-main-card .crisis-number { font-family: 'DM Serif Display', serif; font-size: 34px; margin-bottom: 6px; }
+    .crisis-main-card .crisis-hours { font-size: 13px; opacity: 0.85; }
+    .crisis-main-card a.call-link { display: inline-block; margin-top: 16px; background: white; color: var(--terra); padding: 10px 24px; border-radius: 50px; font-weight: 500; font-size: 14px; text-decoration: none; }
+
+    .country-form { margin-bottom: 28px; }
+    .country-form label { font-size: 13px; font-weight: 500; margin-right: 10px; }
+    .country-form select {
+      padding: 8px 12px; border-radius: var(--radius-sm); border: 1.5px solid var(--light-gray);
+      font-family: 'DM Sans', sans-serif; font-size: 14px;
+    }
+
+    .fallback-note { font-size: 13px; color: var(--mid-gray); margin-bottom: 32px; }
+    .fallback-note a { color: var(--sage-dark); font-weight: 500; }
+
+    .therapist-section h2 { font-size: 20px; margin-bottom: 14px; }
+    .therapist-card {
+      background: white; border-radius: var(--radius-sm); padding: 18px 20px;
+      box-shadow: var(--shadow-soft); margin-bottom: 12px;
+    }
+    .therapist-card a { font-weight: 500; color: var(--sage-dark); font-size: 15px; }
+    .therapist-card p { font-size: 13px; color: var(--mid-gray); margin-top: 4px; }
+
+    .escalation-note {
+      background: var(--cream-dark); border-radius: var(--radius); padding: 22px 24px;
+      margin-top: 32px; font-size: 14px; color: var(--charcoal); line-height: 1.7;
+    }
+  </style>
+</head>
+<body>
+  <div id="navbar-placeholder"></div>
+  <div class="help-wrap">
+    <h1>Get help now</h1>
+    <p class="lead">If you're in distress, thinking about suicide or self-harm, or just need someone to talk to right now — these resources are free and confidential.</p>
+
+    <div class="crisis-main-card">
+      <div class="crisis-label">Crisis line</div>
+      <div class="crisis-name">{{ line.name }}</div>
+      <div class="crisis-number">{{ line.number }}</div>
+      <div class="crisis-hours">{{ line.hours }}{% if line.extra %} &middot; {{ line.extra }}{% endif %}</div>
+      <a href="tel:{{ line.number|cut:' ' }}" class="call-link">Call now</a>
+    </div>
+
+    <form method="get" class="country-form">
+      <label for="country">Show me the crisis line for:</label>
+      <select name="country" id="country" onchange="this.form.submit()">
+        {% for code, data in crisis_lines.items %}
+          <option value="{{ code }}" {% if code == selected_country %}selected{% endif %}>{{ data.name }} ({{ code }})</option>
+        {% endfor %}
+      </select>
+    </form>
+
+    <p class="fallback-note">
+      Don't see your country listed? <a href="https://findahelpline.com" target="_blank" rel="noopener">Find A Helpline</a>
+      is a maintained global directory covering crisis lines in 130+ countries.
+    </p>
+
+    <div class="therapist-section">
+      <h2>Find a therapist</h2>
+      <div class="therapist-card">
+        <a href="https://www.sadag.org/" target="_blank" rel="noopener">SADAG (South Africa)</a>
+        <p>South Africa's largest mental health support and referral organisation.</p>
+      </div>
+      <div class="therapist-card">
+        <a href="https://www.psychologytoday.com/us/therapists" target="_blank" rel="noopener">Psychology Today Therapist Directory</a>
+        <p>Searchable directory of licensed therapists — strongest coverage in the US, some international listings.</p>
+      </div>
+      <div class="therapist-card">
+        <a href="https://findahelpline.com" target="_blank" rel="noopener">Find A Helpline</a>
+        <p>Global directory of crisis lines and support services by country.</p>
+      </div>
+    </div>
+
+    <div class="escalation-note">
+      <strong>A reminder:</strong> MindSpace's AI companion offers support and a listening ear, but
+      it isn't therapy and can't replace a real relationship with a licensed professional. If what
+      you're going through feels bigger than a chat can hold, the directories above are a real,
+      concrete next step — not just "seek help" as an abstract suggestion.
+    </div>
+  </div>
+  <div id="footer-placeholder"></div>
+  <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

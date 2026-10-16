@@ -1,0 +1,32 @@
+{% extends "adminpanel/base.html" %}{% block title %}App ratings{% endblock %}
+{% block content %}
+<div class="head"><div><h1>App ratings</h1><p class="muted">What people think of MindSpace.</p></div></div>
+<div class="grid g2">
+  <div class="card">
+    <p class="stat"><b>{% if s.average %}{{ s.average }}★{% else %}–{% endif %}</b><span>from {{ s.count }} rating{{ s.count|pluralize }}</span></p>
+    <div style="margin-top:14px">{% for d in s.distribution %}
+      <div style="display:grid;grid-template-columns:34px 1fr 34px;gap:10px;align-items:center;margin:6px 0">
+        <span class="small">{{ d.stars }}★</span><div class="bar"><i style="width:{% widthratio d.count top 100 %}%"></i></div><span class="small muted" style="text-align:right">{{ d.count }}</span>
+      </div>{% endfor %}</div>
+  </div>
+  <div class="card">
+    <h3 style="margin-bottom:10px">Weekly average</h3>
+    <div style="display:flex;align-items:flex-end;gap:10px;height:150px">
+      {% for w in s.trend %}
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%" title="{{ w.count }} rating{{ w.count|pluralize }}">
+          <span class="small muted">{% if w.avg %}{{ w.avg|floatformat:1 }}{% endif %}</span>
+          <div style="width:100%;border-radius:6px;background:{% if w.avg %}var(--sage){% else %}var(--cream-dark){% endif %};height:{% if w.avg %}{% widthratio w.avg 5 110 %}{% else %}4{% endif %}px"></div>
+          <span class="small muted" style="margin-top:4px">{{ w.week_start|date:"j M" }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+<div class="head" style="margin-top:28px"><h2 style="font-size:24px">Individual ratings</h2>
+  <a class="btn outline" href="?comments={% if only %}0{% else %}1{% endif %}">{% if only %}Show all{% else %}Only with comments{% endif %}</a></div>
+<div class="card" style="padding:6px 10px"><table>
+  <tr><th>Stars</th><th>Comment</th><th>From</th><th>Platform</th><th>Updated</th></tr>
+  {% for r in rows %}<tr><td class="stars">{{ "★★★★★"|slice:r.stars }}</td><td>{{ r.comment|default:"–" }}</td><td class="muted">{{ r.email }}</td><td class="muted">{{ r.platform|default:"–" }}</td><td class="muted">{{ r.updated_at|date:"j M Y" }}</td></tr>
+  {% empty %}<tr><td colspan="5" class="muted">No ratings yet.</td></tr>{% endfor %}
+</table></div>
+{% endblock %}

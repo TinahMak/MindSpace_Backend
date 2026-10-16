@@ -1,0 +1,98 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — MindSpace</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  <style>
+    .privacy-wrap { max-width: 760px; margin: 0 auto; padding: 120px 24px 80px; }
+    .privacy-wrap h1 { font-size: 36px; margin-bottom: 8px; }
+    .privacy-wrap .updated { font-size: 13px; color: var(--mid-gray); margin-bottom: 40px; }
+    .privacy-wrap h2 { font-size: 20px; margin-top: 36px; margin-bottom: 12px; }
+    .privacy-wrap p, .privacy-wrap li { font-size: 15px; color: var(--charcoal); line-height: 1.8; margin-bottom: 10px; }
+    .privacy-wrap ul { padding-left: 22px; margin-bottom: 16px; }
+    .privacy-wrap a { color: var(--sage-dark); text-decoration: underline; }
+    .plain-note {
+      background: var(--cream); border-left: 3px solid var(--sage);
+      padding: 14px 18px; font-size: 14px; color: var(--mid-gray);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0; margin-bottom: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div id="navbar-placeholder"></div>
+  <div class="privacy-wrap">
+    <h1>Privacy Policy</h1>
+    <p class="updated">Last updated: August 2026</p>
+
+    <div class="plain-note">
+      We've tried to write this in plain language rather than dense legal text. If anything
+      is unclear, <a href="{% url 'contact' %}">reach out</a> and we'll explain it properly.
+    </div>
+
+    <h2>What we collect</h2>
+    <p>When you create an account, we collect your name, email address, date of birth (to
+    confirm you meet our minimum age), and optionally your phone number and what brings you
+    to MindSpace.</p>
+    <p>As you use the app, we store what you actively give us: mood check-ins (mood level,
+    tags, optional notes), journal entries, and your AI chat conversations — including any
+    photos you choose to share in chat.</p>
+
+    <h2>Why we collect it</h2>
+    <ul>
+      <li>To provide the core features you're using — mood tracking, chat history, insights</li>
+      <li>To generate your personalized mood insights and (if you opt in) a weekly summary email</li>
+      <li>To keep the account secure and let you log back in</li>
+    </ul>
+    <p>We do not sell your data, and we do not use your mental health data for advertising.</p>
+
+    <h2>Third parties involved in providing the service</h2>
+    <p>When you use the AI chat or photo mood-check features, the text and images you send are
+    sent to Google's Gemini API to generate a response. This is necessary for that feature to
+    work at all. Google's own terms govern how they process that request; we don't control that
+    separately from what you send them through our app.</p>
+    <p>If you use email-based features (password reset, weekly insights, verification), our email
+    provider processes your email address and message content to deliver that email.</p>
+    <p>We don't share your data with any other third party, and we don't sell it.</p>
+
+    <h2>How we protect it</h2>
+    <p>Being transparent about what's actually in place, rather than making claims we can't
+    back up:</p>
+    <ul>
+      <li>Passwords are hashed using Django's industry-standard PBKDF2 algorithm — we never
+      store or can see your actual password</li>
+      <li>Data in transit is encrypted via HTTPS in production deployments</li>
+      <li>Your data is only accessible through your authenticated account — other users
+      cannot see your mood entries, journal, or chat history</li>
+    </ul>
+    <p>We are a small, independently-run project. We have not undergone formal compliance
+    certification (e.g. HIPAA, SOC 2), and we won't claim otherwise. If that level of assurance
+    matters for your use case, please factor that in.</p>
+
+    <h2>Your rights</h2>
+    <ul>
+      <li><strong>Export:</strong> download everything we have on you at any time from
+      <a href="{% url 'account_settings' %}">Account Settings</a></li>
+      <li><strong>Delete:</strong> permanently delete your account and all associated data,
+      also from Account Settings — this is irreversible</li>
+      <li><strong>Correct:</strong> update your profile details any time you're logged in</li>
+    </ul>
+
+    <h2>Data retention</h2>
+    <p>We keep your data for as long as your account exists. If you delete your account, your
+    data is permanently removed from our database.</p>
+
+    <h2>Not a substitute for professional care</h2>
+    <p>MindSpace is a wellness companion, not a licensed medical or mental health service. If
+    you're in crisis, please use the resources on our <a href="{% url 'get_help' %}">Get Help</a>
+    page or contact your local emergency services.</p>
+
+    <h2>Questions</h2>
+    <p>Reach out any time via our <a href="{% url 'contact' %}">contact page</a>.</p>
+  </div>
+  <div id="footer-placeholder"></div>
+  <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

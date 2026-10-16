@@ -1,0 +1,28 @@
+{% extends "adminpanel/base.html" %}{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="head"><div><h1>Dashboard</h1><p class="muted">An overview of MindSpace accounts and feedback.</p></div></div>
+<div class="grid g4">
+  <div class="card stat"><b>{{ stats.users_total }}</b><span>Total users</span></div>
+  <div class="card stat"><b>{{ stats.users_new_7d }}</b><span>Joined this week</span></div>
+  <div class="card stat"><b>{{ stats.users_active_7d }}</b><span>Checked in this week</span></div>
+  <div class="card stat"><b>{% if stats.rating_average %}{{ stats.rating_average }}★{% else %}–{% endif %}</b><span>Average rating ({{ stats.rating_count }})</span></div>
+</div>
+{% if stats.pros_pending %}<a href="{% url 'adminpanel:professionals' %}" class="card" style="display:block;margin-top:16px;background:var(--terra-wash);border-color:#f0d3c4"><b style="color:var(--terra)">{{ stats.pros_pending }} professional{{ stats.pros_pending|pluralize }} waiting for review →</b></a>{% endif %}
+<div class="grid g2" style="margin-top:16px">
+  <div class="card">
+    <h3 style="margin-bottom:12px">Recent feedback</h3>
+    {% for r in recent %}
+      <div style="padding:10px 0;border-bottom:1px solid var(--cream-dark)"><span class="stars">{{ "★★★★★"|slice:r.stars }}</span> <span class="small muted">{{ r.updated_at|date:"j M" }}</span><p style="margin-top:4px">{{ r.comment }}</p></div>
+    {% empty %}<p class="muted small">No written feedback yet.</p>{% endfor %}
+    <p style="margin-top:12px"><a class="small" style="color:var(--sage-dark)" href="{% url 'adminpanel:ratings' %}">All ratings →</a></p>
+  </div>
+  <div class="card">
+    <h3 style="margin-bottom:12px">Recent admin activity</h3>
+    {% for a in audit %}
+      <p class="small" style="padding:6px 0;border-bottom:1px solid var(--cream-dark)"><b>{{ a.actor }}</b> {{ a.action|cut:"_"|lower }} {{ a.target }} <span class="muted">· {{ a.created_at|timesince }} ago</span></p>
+    {% empty %}<p class="muted small">Nothing yet.</p>{% endfor %}
+    <p class="small muted" style="margin-top:12px">{{ stats.consults_open }} open consultation request{{ stats.consults_open|pluralize }} · {{ stats.consults_accepted }} accepted</p>
+    <p class="small muted" style="margin-top:4px">{{ stats.admins }} admin{{ stats.admins|pluralize }} · {{ stats.users_suspended }} suspended account{{ stats.users_suspended|pluralize }}</p>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,8 @@
+venv/
+venv_win/
+venv_win_old/
+.env
+db.sqlite3
+__pycache__/
+*.pyc
+media/
