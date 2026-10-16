@@ -128,3 +128,6 @@ To run it for real (automatic Monday emails):
   running for the automatic Monday send; untested against a real broker in
   the environment this was built in (see "Weekly AI insights" above) —
   please verify the scheduled path works on your machine.
+## Related repository
+
+The mobile app for MindSpace lives here: [MindSpace_Mobile](https://github.com/TinahMak/MindSpace_Mobile)
