@@ -70,6 +70,7 @@
     <a href="{% url 'adminpanel:ratings' %}" class="{% if nav == 'ratings' %}on{% endif %}">App ratings</a>
     <a href="{% url 'adminpanel:reports' %}" class="{% if nav == 'reports' %}on{% endif %}">Reports</a>
     <a href="{% url 'adminpanel:audit' %}" class="{% if nav == 'audit' %}on{% endif %}">Audit log</a>
+    <a href="{% url 'adminpanel:backups' %}" class="{% if nav == 'backups' %}on{% endif %}">Backups</a>
     <div class="spacer"></div>
     <a href="/">Back to MindSpace</a>
     <div class="me">{{ request.user.email }}</div>

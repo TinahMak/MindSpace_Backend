@@ -34,3 +34,30 @@ class AdminAction(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+
+
+class Backup(models.Model):
+    """One run of the Google Drive backup (database + uploaded files)."""
+
+    RUNNING, SUCCESS, FAILED = "running", "success", "failed"
+    STATUS_CHOICES = [(RUNNING, "Running"), (SUCCESS, "Done"), (FAILED, "Failed")]
+
+    started_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name="+")
+    started_by_email = models.EmailField(blank=True)  # "" when run from the terminal
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=RUNNING)
+    filename = models.CharField(max_length=120, blank=True)
+    size_bytes = models.BigIntegerField(default=0)
+    drive_file_id = models.CharField(max_length=128, blank=True)
+    drive_link = models.URLField(max_length=500, blank=True)
+    drive_account = models.EmailField(blank=True)
+    records = models.PositiveIntegerField(default=0)
+    media_files = models.PositiveIntegerField(default=0)
+    error = models.TextField(blank=True)
+    started_at = models.DateTimeField(auto_now_add=True)
+    finished_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-started_at"]
+
+    def __str__(self):
+        return f"Backup {self.started_at:%Y-%m-%d %H:%M} ({self.status})"

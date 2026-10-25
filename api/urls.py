@@ -47,6 +47,7 @@ urlpatterns = [
     path("admin/admins/", admin_api.admins_view),
     path("admin/ratings/", admin_api.ratings_view),
     path("admin/audit/", admin_api.audit_view),
+    path("admin/backup/", admin_api.backup_view),
     path("admin/reports/<str:kind>/preview/", admin_api.report_preview_view),
     path("admin/reports/<str:kind>.<str:fmt>", admin_api.report_file_view),
     # professionals: their own area

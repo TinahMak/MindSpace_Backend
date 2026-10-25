@@ -151,3 +151,29 @@ def report_file_view(request, kind, fmt):
         return reports.response(request, kind, fmt)
     except reports.ReportError as err:
         return _err(err)
+
+
+# ── backups to Google Drive ─────────────────────────────────────────────
+
+@api_view(["GET", "POST"])
+@permission_classes([IsMindSpaceAdmin])
+def backup_view(request):
+    from . import backup
+
+    if request.method == "POST":
+        if not backup.can_run(request.user):
+            return _err("Only the owner account can run backups, because they contain everyone's private data.", 403)
+        try:
+            b = backup.run_backup(actor=request.user)
+        except backup.BackupError as e:
+            return _err(e, 409)
+        if b.status != b.SUCCESS:
+            return Response({"detail": b.error, "backup": backup.backup_dict(b)}, status=502)
+        return Response({"backup": backup.backup_dict(b)}, status=201)
+    return Response(
+        {
+            **backup.status(),
+            "can_run": backup.can_run(request.user),
+            "backups": [backup.backup_dict(b) for b in backup.history(limit=20)],
+        }
+    )

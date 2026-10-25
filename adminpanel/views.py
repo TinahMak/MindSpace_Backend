@@ -244,3 +244,41 @@ def report_file(request, kind, fmt):
     except reports.ReportError as err:
         messages.error(request, str(err))
         return redirect("adminpanel:reports")
+
+
+# ── backups (Google Drive) ──────────────────────────────────────────────
+
+@admin_required
+def backups(request):
+    from . import backup
+
+    return render(
+        request,
+        "adminpanel/backups.html",
+        {
+            "nav": "backups",
+            "gd": backup.status(),
+            "can_run": backup.can_run(request.user),
+            "rows": backup.history(limit=30),
+        },
+    )
+
+
+@admin_required
+@require_POST
+def backup_run(request):
+    from . import backup
+
+    if not backup.can_run(request.user):
+        messages.error(request, "Only the owner account can run backups, because they contain everyone's private data.")
+        return redirect("adminpanel:backups")
+    try:
+        b = backup.run_backup(actor=request.user)
+    except backup.BackupError as e:
+        messages.error(request, str(e))
+        return redirect("adminpanel:backups")
+    if b.status == b.SUCCESS:
+        messages.success(request, f"Backup saved to Google Drive ({b.drive_account}): {b.filename}")
+    else:
+        messages.error(request, f"Backup failed. {b.error}")
+    return redirect("adminpanel:backups")
