@@ -418,6 +418,7 @@
     </div>
   </div>
 
+  <script src="{% static 'js/email_check.js' %}"></script>
   <script>
     let currentStep = 1;
 
@@ -455,11 +456,9 @@
 
     // ── REAL-TIME VALIDATION ─────────────────────────────────
     document.getElementById('email').addEventListener('blur', function() {
-      const val = this.value.trim();
-      const re  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!val)           { showErr('err-email','Please enter your email address'); setInputState(this,'error'); hideOk('ok-email'); }
-      else if (!re.test(val)) { showErr('err-email','Please enter a valid email address'); setInputState(this,'error'); hideOk('ok-email'); }
-      else                { hideErr('err-email'); setInputState(this,'success'); showOk('ok-email'); }
+      const problem = msEmailProblem(this.value);
+      if (problem) { showErr('err-email', problem); setInputState(this,'error'); hideOk('ok-email'); }
+      else         { hideErr('err-email'); setInputState(this,'success'); showOk('ok-email'); }
     });
 
     document.getElementById('confirm-password').addEventListener('input', function() {
@@ -510,7 +509,6 @@
       const last  = document.getElementById('last-name').value.trim();
       const email = document.getElementById('email').value.trim();
       const dob   = document.getElementById('dob').value;
-      const re    = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
       if (!first) { showErr('err-first-name','Please enter your first name'); setInputState(document.getElementById('first-name'),'error'); ok=false; }
       else { hideErr('err-first-name'); setInputState(document.getElementById('first-name'),'success'); }
@@ -518,7 +516,8 @@
       if (!last) { showErr('err-last-name','Please enter your last name'); setInputState(document.getElementById('last-name'),'error'); ok=false; }
       else { hideErr('err-last-name'); setInputState(document.getElementById('last-name'),'success'); }
 
-      if (!email || !re.test(email)) { showErr('err-email','Please enter a valid email address'); setInputState(document.getElementById('email'),'error'); hideOk('ok-email'); ok=false; }
+      const emailProblem = msEmailProblem(email);
+      if (emailProblem) { showErr('err-email', emailProblem); setInputState(document.getElementById('email'),'error'); hideOk('ok-email'); ok=false; }
       else { hideErr('err-email'); setInputState(document.getElementById('email'),'success'); showOk('ok-email'); }
 
       if (!dob) { showErr('err-dob','Please enter your date of birth'); setInputState(document.getElementById('dob'),'error'); ok=false; }

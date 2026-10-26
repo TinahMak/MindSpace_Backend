@@ -39,7 +39,12 @@ class SignupForm(forms.ModelForm):
         ]
 
     def clean_email(self):
-        email = self.cleaned_data["email"].strip().lower()
+        from api.validators import InputError, clean_email
+
+        try:
+            email = clean_email(self.cleaned_data["email"])
+        except InputError as e:
+            raise forms.ValidationError(str(e))
         if User.objects.filter(email__iexact=email).exists():
             raise forms.ValidationError("An account with this email already exists.")
         return email
